@@ -1,6 +1,9 @@
-# AI Voice Agents Challenge - Starter Repository
+# AI Voice Agents Challenge - Starter Repository (Day 1)
 
 Welcome to the **AI Voice Agents Challenge** by [murf.ai](https://murf.ai)!
+
+This copy of the starter repository has been set up and tested by **Anubhav Mishra** for Day 1 of the challenge.
+Repository: https://github.com/anubhav-n-mishra/Day-1-of-10-days-of-ai-agent
 
 ## About the Challenge
 
@@ -70,32 +73,32 @@ Make sure you have the following installed:
 
 ### 1. Clone the Repository
 
-```bash
-git clone <your-repo-url>
-cd falcon-tdova-nov25-livekit
+From your machine (example using the repo created for Day 1):
+
+```powershell
+git clone https://github.com/anubhav-n-mishra/Day-1-of-10-days-of-ai-agent.git
+cd Day-1-of-10-days-of-ai-agent
 ```
 
-### 2. Backend Setup
+### 2. Backend Setup (Windows PowerShell)
 
-```bash
-cd backend
+Open a PowerShell terminal and run the following (these are the exact commands used during Day 1 setup):
 
-# Install dependencies
-uv sync
+```powershell
+cd .\backend
 
-# Copy environment file and configure
-cp .env.example .env.local
+# Create sync the dependencies and virtual environment (uses uv package manager)
+python -m uv sync
 
-# Edit .env.local with your credentials:
-# - LIVEKIT_URL
-# - LIVEKIT_API_KEY
-# - LIVEKIT_API_SECRET
-# - MURF_API_KEY (for Falcon TTS)
-# - GOOGLE_API_KEY (for Gemini LLM)
-# - DEEPGRAM_API_KEY (for Deepgram STT)
+# Copy the example env file and edit it with your provider keys (do NOT commit secrets)
+Copy-Item .env.example .env.local
+# Edit backend/.env.local and fill: LIVEKIT_URL, LIVEKIT_API_KEY, LIVEKIT_API_SECRET, MURF_API_KEY, GOOGLE_API_KEY, DEEPGRAM_API_KEY
 
-# Download required models
-uv run python src/agent.py download-files
+# (optional) Download required model/assets used by the agent
+python -m uv run python src/agent.py download-files
+
+# Start the backend agent (use the venv Python to avoid multiprocessing issues on Windows)
+.\.venv\Scripts\python.exe src/agent.py dev
 ```
 
 For LiveKit Cloud users, you can automatically populate credentials:
@@ -105,18 +108,22 @@ lk cloud auth
 lk app env -w -d .env.local
 ```
 
-### 3. Frontend Setup
+### 3. Frontend Setup (Windows PowerShell)
 
-```bash
-cd frontend
+In a separate PowerShell terminal run:
+
+```powershell
+cd .\frontend
 
 # Install dependencies
 pnpm install
 
-# Copy environment file and configure
-cp .env.example .env.local
+# Copy example env and add LiveKit credentials (same as backend)
+Copy-Item .env.example .env.local
+# Edit frontend/.env.local: LIVEKIT_URL, LIVEKIT_API_KEY, LIVEKIT_API_SECRET
 
-# Edit .env.local with the same LiveKit credentials
+# Start the dev server
+pnpm dev
 ```
 
 ### 4. Run the Application
@@ -143,22 +150,34 @@ This will start:
 - Backend agent (listening for connections)
 - Frontend app (at http://localhost:3000)
 
-#### Option B: Run services individually
+#### Option B: Run services individually (Windows notes)
 
-```bash
-# Terminal 1 - LiveKit Server
+If you prefer to run services manually:
+
+1) LiveKit Server (optional - you can also use LiveKit Cloud):
+
+```powershell
+# Run LiveKit server locally (use Docker or the binary per LiveKit docs)
 livekit-server --dev
+```
 
-# Terminal 2 - Backend Agent
+2) Backend (use venv Python as shown above):
+
+```powershell
 cd backend
-uv run python src/agent.py dev
+.\.venv\Scripts\python.exe src/agent.py dev
+```
 
-# Terminal 3 - Frontend
+3) Frontend (run in another terminal):
+
+```powershell
 cd frontend
 pnpm dev
 ```
 
-Then open http://localhost:3000 in your browser!
+Open `http://localhost:3001` (Next may choose 3001 if 3000 is in use).
+
+Note: Browsers only allow microphone/camera access on secure contexts — `localhost` is accepted; accessing the frontend by raw LAN IP (e.g. `192.168.x.x`) will trigger media device errors unless served over HTTPS or via a secure tunnel like `ngrok`.
 
 ## Daily Challenge Tasks
 
@@ -201,7 +220,9 @@ This is a challenge repository, but we encourage collaboration and knowledge sha
 
 ## License
 
-This project is based on MIT-licensed templates from LiveKit and includes integration with Murf Falcon. See individual LICENSE files in backend and frontend directories for details.
+This repository copy (Day 1 starter + my local changes) is released under the MIT License. See the root `LICENSE` file for details.
+
+Original templates and third-party components may have their own licenses — see `backend/LICENSE` and `frontend/LICENSE` files where applicable.
 
 ## Have Fun!
 
