@@ -119,6 +119,16 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: 'Georgia', 'Times New Roman', serif;
+    background: linear-gradient(180deg, #FFF7EE 0%, #F6E7D7 100%);
+  }
+
+  /* Make primary buttons more cafe-like */
+  .btn-primary {
+    background-color: var(--primary);
+    color: var(--primary-foreground);
+    border-radius: 9999px;
+    padding: 0.6rem 1.25rem;
   }
 }
 

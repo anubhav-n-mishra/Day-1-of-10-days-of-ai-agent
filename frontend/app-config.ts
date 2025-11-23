@@ -29,7 +29,7 @@ export const APP_CONFIG_DEFAULTS: AppConfig = {
   supportsScreenShare: true,
   isPreConnectBufferEnabled: true,
 
-  logo: '/lk-logo.svg',
+  logo: '/ccd-logo.svg',
   accent: '#D7141A',
   logoDark: '/lk-logo-dark.svg',
   accentDark: '#b21014',
