@@ -100,9 +100,11 @@ export const SessionView = ({
   return (
     <section className="bg-background relative z-10 h-full w-full overflow-hidden" {...props}>
       {/* Coffee Visualizer - Top Center */}
-      <div className="fixed inset-x-0 top-12 z-40 flex flex-col items-center">
-        <CoffeeFoamVisualizer isActive={isMicrophoneEnabled} />
-      </div>
+      {typeof window !== 'undefined' && (
+        <div className="fixed inset-x-0 top-12 z-40 flex flex-col items-center">
+          <CoffeeFoamVisualizer isActive={isMicrophoneEnabled} />
+        </div>
+      )}
 
       {/* Chat Transcript */}
       <div

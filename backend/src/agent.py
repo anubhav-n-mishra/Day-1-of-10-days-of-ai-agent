@@ -12,11 +12,10 @@ from livekit.agents import (
     cli,
     metrics,
     tokenize,
-    # function_tool,
-    # RunContext
 )
 from livekit.plugins import murf, silero, google, deepgram, noise_cancellation
 from livekit.plugins.turn_detector.multilingual import MultilingualModel
+from .order_handler import monitor_agent_response
 
 logger = logging.getLogger("agent")
 
@@ -125,6 +124,13 @@ async def entrypoint(ctx: JobContext):
     def _on_metrics_collected(ev: MetricsCollectedEvent):
         metrics.log_metrics(ev.metrics)
         usage_collector.collect(ev.metrics)
+
+    # Monitor agent responses for completed orders
+    @session.on("agent_speech")
+    def _on_agent_speech(text: str):
+        """Monitor agent speech for ORDER_COMPLETE_JSON marker and save orders."""
+        logger.info(f"Agent said: {text[:100]}...")
+        monitor_agent_response(text)
 
     async def log_usage():
         summary = usage_collector.get_summary()

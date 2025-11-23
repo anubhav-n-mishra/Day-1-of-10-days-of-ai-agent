@@ -16,7 +16,7 @@ export default function CoffeeFoamVisualizer({ isActive = false }: CoffeeFoamVis
         animate={isActive ? { scale: [1, 1.08, 1] } : {}}
         transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
       >
-        <div className="relative w-40 h-40 bg-gradient-to-br from-white to-[#f9f9f9] rounded-3xl shadow-[0_10px_40px_rgba(0,112,74,0.15)] border-[5px] border-[#00704A] flex items-center justify-center">
+        <div className="relative w-40 h-40 bg-linear-to-br from-white to-[#f9f9f9] rounded-3xl shadow-[0_10px_40px_rgba(0,112,74,0.15)] border-[5px] border-[#00704A] flex items-center justify-center">
           {/* Coffee Icon */}
           <Coffee className="w-20 h-20 text-[#00704A]" strokeWidth={2.5} />
           
@@ -24,7 +24,7 @@ export default function CoffeeFoamVisualizer({ isActive = false }: CoffeeFoamVis
           {isActive && (
             <>
               <motion.div
-                className="absolute inset-0 rounded-3xl bg-gradient-to-br from-[#00704A]/10 to-[#00a862]/5"
+                className="absolute inset-0 rounded-3xl bg-linear-to-br from-[#00704A]/10 to-[#00a862]/5"
                 animate={{ opacity: [0.2, 0.5, 0.2] }}
                 transition={{ duration: 1.5, repeat: Infinity }}
               />
@@ -45,7 +45,7 @@ export default function CoffeeFoamVisualizer({ isActive = false }: CoffeeFoamVis
               {[...Array(5)].map((_, i) => (
                 <motion.div
                   key={i}
-                  className="absolute top-2 w-3 h-3 bg-gradient-to-t from-[#00704A] to-transparent rounded-full"
+                  className="absolute top-2 w-3 h-3 bg-linear-to-t from-[#00704A] to-transparent rounded-full"
                   style={{ left: `${25 + i * 12}%` }}
                   animate={{
                     y: [0, -50],
