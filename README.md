@@ -220,45 +220,6 @@ This is a challenge repository, but we encourage collaboration and knowledge sha
 
 ## License
 
-## Day 2 — Coffee Shop Barista (What I implemented)
-
-For Day 2 of the challenge I converted the starter agent into a friendly coffee shop barista. What I implemented locally in this copy:
-
-- Barista persona and behavior inside `backend/src/agent.py` (assistant prompts and behavior updated).
-- The assistant is instructed to output a single-line marker when the order is complete:
-	- `ORDER_COMPLETE_JSON: { ... }` (the agent will print a single line that begins with that token and contains the final JSON order).
-- A helper script `backend/save_order.py` was added to persist orders to `backend/orders.json` when you supply the JSON to the script.
-
-Quick test and save workflow (manual save):
-
-1. Start backend (use venv Python to avoid Windows multiprocessing issues):
-
-```powershell
-cd backend
-.\.venv\Scripts\python.exe src/agent.py dev
-```
-
-2. Start frontend in another terminal:
-
-```powershell
-cd frontend
-pnpm dev
-```
-
-3. Open `http://localhost:3001` (or `http://localhost:3000`) and place a coffee order by speaking to the agent.
-
-4. When the agent completes the order it will output a single line starting with `ORDER_COMPLETE_JSON:`. Copy the JSON object that follows and run:
-
-```powershell
-python .\backend\save_order.py '{"drinkType":"latte","size":"medium","milk":"oat","extras":["vanilla"],"name":"Alex"}'
-```
-
-This will append the order to `backend/orders.json`.
-
-If you want fully automatic saving (agent writes the file itself), I can implement a small handler that watches assistant output server-side and invokes the same save logic automatically — tell me if you want that next.
-
-## License
-
 This repository copy (Day 1 starter + my local changes) is released under the MIT License. See the root `LICENSE` file for details.
 
 Original templates and third-party components may have their own licenses — see `backend/LICENSE` and `frontend/LICENSE` files where applicable.
