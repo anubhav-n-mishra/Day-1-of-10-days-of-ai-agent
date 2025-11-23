@@ -1,0 +1,28 @@
+# Node / Next
+node_modules
+.next
+out
+dist
+
+# Python
+.venv
+__pycache__
+*.pyc
+
+# Local env files (do NOT commit secrets)
+.env.local
+backend/.env.local
+frontend/.env.local
+
+# OS
+.DS_Store
+thumbs.db
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Editor
+.vscode
+.idea
