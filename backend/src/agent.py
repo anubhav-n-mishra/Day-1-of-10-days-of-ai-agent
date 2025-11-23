@@ -1,4 +1,9 @@
 import logging
+import sys
+from pathlib import Path
+
+# Add src to path for imports
+sys.path.insert(0, str(Path(__file__).parent))
 
 from dotenv import load_dotenv
 from livekit.agents import (
@@ -15,7 +20,7 @@ from livekit.agents import (
 )
 from livekit.plugins import murf, silero, google, deepgram, noise_cancellation
 from livekit.plugins.turn_detector.multilingual import MultilingualModel
-from .order_handler import monitor_agent_response
+from order_handler import monitor_agent_response
 
 logger = logging.getLogger("agent")
 
