@@ -30,23 +30,23 @@ export default function CoffeeFoamVisualizer({ isActive = false }: CoffeeFoamVis
   }, []);
 
   return (
-    <div className="relative w-full max-w-md mx-auto h-64 rounded-2xl overflow-hidden bg-gradient-to-b from-[var(--color-coffee-light)] to-[var(--color-coffee-dark)] shadow-2xl">
+    <div className="relative w-full max-w-md mx-auto h-64 rounded-2xl overflow-hidden bg-gradient-to-b from-[#d7c0ae] to-[#6f4e37] shadow-2xl border-4 border-[#d7c0ae]">
       {/* Coffee Cup Container */}
       <div className="absolute inset-0 flex items-end justify-center">
         {/* Coffee Surface */}
         <motion.div
-          className="w-full h-3/4 bg-gradient-to-t from-[var(--color-coffee-dark)] via-[var(--color-beans)] to-[var(--color-coffee-light)] relative"
+          className="w-full h-3/4 bg-gradient-to-t from-[#4b2e15] via-[#6f4e37] to-[#8b6f47] relative"
           animate={isActive ? { height: "85%" } : { height: "75%" }}
           transition={{ duration: 1, ease: "easeInOut" }}
         >
           {/* Foam Layer */}
-          <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-[var(--color-foam)] to-transparent opacity-80" />
+          <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-[#fff6e9] to-transparent opacity-80" />
 
           {/* Animated Bubbles */}
           {bubbles.map((bubble) => (
             <motion.div
               key={bubble.id}
-              className="absolute bottom-0 rounded-full bg-[var(--color-foam)] opacity-60"
+              className="absolute bottom-0 rounded-full bg-[#fff6e9] opacity-60 shadow-lg"
               style={{
                 left: `${bubble.x}%`,
                 width: `${bubble.size}px`,
@@ -100,12 +100,12 @@ export default function CoffeeFoamVisualizer({ isActive = false }: CoffeeFoamVis
       </div>
 
       {/* Cup Handle */}
-      <div className="absolute right-4 top-1/2 w-12 h-16 border-4 border-[var(--color-coffee-light)] rounded-r-full opacity-60" />
+      <div className="absolute right-4 top-1/2 w-12 h-16 border-4 border-[#d7c0ae] rounded-r-full opacity-80" />
 
       {/* Active Pulse Effect */}
       {isActive && (
         <motion.div
-          className="absolute inset-0 border-4 border-[var(--color-caramel)] rounded-2xl"
+          className="absolute inset-0 border-4 border-[#00704A] rounded-2xl"
           animate={{ opacity: [0.5, 0.8, 0.5] }}
           transition={{ duration: 2, repeat: Infinity }}
         />

@@ -37,12 +37,12 @@ export const WelcomeView = ({
           <CoffeeFoamVisualizer isActive={false} />
         </div>
 
-        <h1 className="text-3xl font-bold text-foreground mb-2">Cafe Coffee Day</h1>
-        <p className="text-foreground max-w-prose pt-1 leading-6 font-medium text-lg">
-          Place your order with our barista
+        <h1 className="text-4xl font-bold text-[#00704A] mb-3">Coffee Shop Voice Barista</h1>
+        <p className="text-[#1e3932] max-w-prose pt-1 leading-7 font-normal text-lg">
+          Voice-powered ordering, just like magic ☕
         </p>
 
-        <Button variant="primary" size="lg" onClick={onStartCall} className="mt-8 w-64 font-mono text-lg py-6">
+        <Button variant="primary" size="lg" onClick={onStartCall} className="mt-8 w-72 text-base py-7 bg-[#00704A] hover:bg-[#005a3a] text-white rounded-full font-semibold shadow-lg">
           {startButtonText}
         </Button>
       </section>

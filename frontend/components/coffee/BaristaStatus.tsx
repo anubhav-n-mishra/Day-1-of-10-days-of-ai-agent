@@ -12,20 +12,20 @@ export default function BaristaStatus({ status }: BaristaStatusProps) {
     idle: {
       icon: Clock,
       text: "Ready to take your order",
-      color: "text-[var(--color-coffee-light)]",
-      bgColor: "bg-[var(--color-coffee-light)]/10",
+      color: "text-[#00704A]",
+      bgColor: "bg-[#00704A]/10",
     },
     listening: {
       icon: Mic,
       text: "Listening to your order",
-      color: "text-[var(--color-matcha)]",
-      bgColor: "bg-[var(--color-matcha)]/10",
+      color: "text-[#00704A]",
+      bgColor: "bg-[#00704A]/20",
     },
     brewing: {
       icon: Coffee,
       text: "Brewing your perfect cup",
-      color: "text-[var(--color-caramel)]",
-      bgColor: "bg-[var(--color-caramel)]/10",
+      color: "text-[#d4a574]",
+      bgColor: "bg-[#d4a574]/10",
     },
   };
 
