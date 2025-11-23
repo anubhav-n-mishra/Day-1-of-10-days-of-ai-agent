@@ -20,9 +20,9 @@ export interface AppConfig {
 }
 
 export const APP_CONFIG_DEFAULTS: AppConfig = {
-  companyName: 'LiveKit',
-  pageTitle: 'LiveKit Voice Agent',
-  pageDescription: 'A voice agent built with LiveKit',
+  companyName: 'Cafe Coffee Day',
+  pageTitle: 'Cafe Coffee Day - Barista Agent',
+  pageDescription: 'A friendly coffee shop barista voice agent',
 
   supportsChatInput: true,
   supportsVideoInput: true,
@@ -30,10 +30,10 @@ export const APP_CONFIG_DEFAULTS: AppConfig = {
   isPreConnectBufferEnabled: true,
 
   logo: '/lk-logo.svg',
-  accent: '#002cf2',
+  accent: '#D7141A',
   logoDark: '/lk-logo-dark.svg',
-  accentDark: '#1fd5f9',
-  startButtonText: 'Start call',
+  accentDark: '#b21014',
+  startButtonText: 'Start order',
 
   // for LiveKit Cloud Sandbox
   sandboxId: undefined,
