@@ -15,6 +15,9 @@ import { useConnectionTimeout } from '@/hooks/useConnectionTimout';
 import { useDebugMode } from '@/hooks/useDebug';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '../livekit/scroll-area/scroll-area';
+import CoffeeFoamVisualizer from '@/components/coffee/CoffeeFoamVisualizer';
+import BaristaStatus from '@/components/coffee/BaristaStatus';
+import { useLocalParticipant } from '@livekit/components-react';
 
 const MotionBottom = motion.create('div');
 
@@ -72,6 +75,10 @@ export const SessionView = ({
   const messages = useChatMessages();
   const [chatOpen, setChatOpen] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const { isMicrophoneEnabled } = useLocalParticipant();
+  
+  // Determine barista status based on microphone state and messages
+  const baristaStatus = isMicrophoneEnabled ? 'listening' : 'idle';
 
   const controls: ControlBarControls = {
     leave: true,
@@ -92,6 +99,12 @@ export const SessionView = ({
 
   return (
     <section className="bg-background relative z-10 h-full w-full overflow-hidden" {...props}>
+      {/* Coffee Visualizer and Status - Top Section */}
+      <div className="fixed inset-x-0 top-8 z-40 flex flex-col items-center gap-6">
+        <BaristaStatus status={baristaStatus} />
+        <CoffeeFoamVisualizer isActive={isMicrophoneEnabled} />
+      </div>
+
       {/* Chat Transcript */}
       <div
         className={cn(

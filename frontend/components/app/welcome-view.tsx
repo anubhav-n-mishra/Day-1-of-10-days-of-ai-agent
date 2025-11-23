@@ -1,4 +1,5 @@
 import { Button } from '@/components/livekit/button';
+import CoffeeFoamVisualizer from '@/components/coffee/CoffeeFoamVisualizer';
 
 function WelcomeImage() {
   return (
@@ -31,15 +32,17 @@ export const WelcomeView = ({
 }: React.ComponentProps<'div'> & WelcomeViewProps) => {
   return (
     <div ref={ref}>
-      <section className="bg-background flex flex-col items-center justify-center text-center">
-        <WelcomeImage />
+      <section className="bg-background flex flex-col items-center justify-center text-center px-4">
+        <div className="mb-8">
+          <CoffeeFoamVisualizer isActive={false} />
+        </div>
 
-        <h1 className="text-2xl font-semibold text-foreground">Cafe Coffee Day</h1>
-        <p className="text-foreground max-w-prose pt-1 leading-6 font-medium">
+        <h1 className="text-3xl font-bold text-foreground mb-2">Cafe Coffee Day</h1>
+        <p className="text-foreground max-w-prose pt-1 leading-6 font-medium text-lg">
           Place your order with our barista
         </p>
 
-        <Button variant="primary" size="lg" onClick={onStartCall} className="mt-6 w-64 font-mono">
+        <Button variant="primary" size="lg" onClick={onStartCall} className="mt-8 w-64 font-mono text-lg py-6">
           {startButtonText}
         </Button>
       </section>
