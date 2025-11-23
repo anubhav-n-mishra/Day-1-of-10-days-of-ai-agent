@@ -20,20 +20,20 @@ export interface AppConfig {
 }
 
 export const APP_CONFIG_DEFAULTS: AppConfig = {
-  companyName: 'Coffee Shop Voice Barista',
-  pageTitle: 'Coffee Shop Voice Barista',
-  pageDescription: 'Voice-powered coffee ordering experience',
+  companyName: 'Starbucks Voice Barista',
+  pageTitle: 'Starbucks Voice Barista - Order with AI',
+  pageDescription: 'Order your favorite Starbucks drink using voice AI technology',
 
   supportsChatInput: true,
-  supportsVideoInput: true,
-  supportsScreenShare: true,
+  supportsVideoInput: false,
+  supportsScreenShare: false,
   isPreConnectBufferEnabled: true,
 
   logo: '/ccd-logo.svg',
   accent: '#00704A',
   logoDark: '/lk-logo-dark.svg',
   accentDark: '#005a3a',
-  startButtonText: 'Start Your Order',
+  startButtonText: 'Start Ordering',
 
   // for LiveKit Cloud Sandbox
   sandboxId: undefined,

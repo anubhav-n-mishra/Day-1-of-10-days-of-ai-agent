@@ -45,11 +45,9 @@ export function PreConnectMessage({ className, messages = [] }: PreConnectMessag
           aria-hidden={messages.length > 0}
           className={cn('pointer-events-none text-center', className)}
         >
-          <div className="inline-block bg-white border-2 border-[#00704A] rounded-2xl px-6 py-3 shadow-lg">
-            <ShimmerText className="text-sm font-semibold text-[#00704A]">
-              🎤 Your barista is ready to take your order
-            </ShimmerText>
-          </div>
+          <ShimmerText className="text-sm font-semibold text-[#00704A]">
+            Your barista is ready to take your order
+          </ShimmerText>
         </MotionMessage>
       )}
     </AnimatePresence>

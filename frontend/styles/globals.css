@@ -4,72 +4,74 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --radius: 0.625rem;
-  --background: #f7f5f2;
-  --foreground: #1e3932;
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
+  --radius: 0.5rem;
+  --background: #ffffff;
+  --foreground: #000000;
+  --card: #ffffff;
+  --card-foreground: #000000;
+  --popover: #ffffff;
+  --popover-foreground: #000000;
   --primary: #00704A;
   --primary-foreground: #ffffff;
-  --secondary: #d4a574;
-  --secondary-foreground: #1e3932;
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
+  --secondary: #f1f8f5;
+  --secondary-foreground: #00704A;
+  --muted: #f7f7f7;
+  --muted-foreground: #6b6b6b;
   --accent: #00704A;
   --accent-foreground: #ffffff;
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: #d4d4d4;
-  --input: #e8e8e8;
+  --destructive: #d62b1f;
+  --destructive-foreground: #ffffff;
+  --border: #e0e0e0;
+  --input: #e0e0e0;
   --ring: #00704A;
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
+  --chart-1: #00704A;
+  --chart-2: #1e3932;
+  --chart-3: #00643e;
+  --chart-4: #d4e9e2;
+  --chart-5: #f1f8f5;
+  --sidebar: #f7f7f7;
+  --sidebar-foreground: #000000;
   --sidebar-primary: #00704A;
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f1f8f5;
+  --sidebar-accent-foreground: #00704A;
+  --sidebar-border: #e0e0e0;
+  --sidebar-ring: #00704A;
 }
 
 .dark {
   --background: #1e3932;
-  --foreground: #f7f5f2;
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.269 0 0);
-  --popover-foreground: oklch(0.985 0 0);
+  --foreground: #ffffff;
+  --card: #2d5e4f;
+  --card-foreground: #ffffff;
+  --popover: #2d5e4f;
+  --popover-foreground: #ffffff;
   --primary: #00a862;
   --primary-foreground: #ffffff;
-  --secondary: #d4a574;
-  --secondary-foreground: #1e3932;
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
+  --secondary: #2d5e4f;
+  --secondary-foreground: #ffffff;
+  --muted: #3d6e5f;
+  --muted-foreground: #d4e9e2;
   --accent: #00a862;
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
+  --accent-foreground: #ffffff;
+  --destructive: #d62b1f;
+  --destructive-foreground: #ffffff;
+  --border: #3d6e5f;
+  --input: #3d6e5f;
+  --ring: #00a862;
+  --chart-1: #00a862;
+  --chart-2: #1e3932;
+  --chart-3: #00704A;
+  --chart-4: #d4e9e2;
+  --chart-5: #f1f8f5;
+  --sidebar: #2d5e4f;
+  --sidebar-foreground: #ffffff;
   --sidebar-primary: #00a862;
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.439 0 0);
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #3d6e5f;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #3d6e5f;
+  --sidebar-ring: #00a862;
 }
 
 @theme inline {
@@ -127,22 +129,31 @@
 
 @layer base {
   * {
-    @apply border-foreground/20 outline-ring/50;
+    @apply border-border outline-ring/50;
   }
   body {
     @apply bg-background text-foreground;
-    font-family: 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
-    background: linear-gradient(180deg, #f7f5f2 0%, #e8dfd5 100%);
+    font-family: 'SoDo Sans', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
+    background: #ffffff;
   }
 
-  /* Make primary buttons more Starbucks-like */
+  /* Starbucks-inspired buttons */
   .btn-primary {
-    background-color: var(--primary);
-    color: var(--primary-foreground);
-    border-radius: 2rem;
-    padding: 0.75rem 1.5rem;
+    background-color: #00704A;
+    color: #ffffff;
+    border-radius: 1.5rem;
+    padding: 0.875rem 2rem;
     font-weight: 600;
+    font-size: 1rem;
+    letter-spacing: 0.05em;
     text-transform: none;
+    transition: all 0.2s ease;
+  }
+  
+  .btn-primary:hover {
+    background-color: #005a3a;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 112, 74, 0.3);
   }
 }
 

@@ -32,24 +32,30 @@ export const WelcomeView = ({
 }: React.ComponentProps<'div'> & WelcomeViewProps) => {
   return (
     <div ref={ref}>
-      <section className="bg-background flex flex-col items-center justify-center text-center px-4 min-h-screen">
-        <div className="mb-12">
+      <section className="bg-white flex flex-col items-center justify-center text-center px-4 min-h-screen">
+        <div className="mb-16">
           <CoffeeFoamVisualizer isActive={false} />
         </div>
 
-        <h1 className="text-5xl font-bold text-[#00704A] mb-4 tracking-tight">Coffee Shop Voice Barista</h1>
-        <p className="text-[#1e3932] max-w-md pt-2 leading-relaxed text-lg mb-8">
-          Voice-powered ordering, crafted with care ☕
+        <h1 className="text-6xl font-black text-[#00704A] mb-6 tracking-tight leading-tight">
+          Starbucks Voice<br />Barista
+        </h1>
+        <p className="text-gray-600 max-w-md text-xl mb-12 font-medium">
+          Order your favorite drink using just your voice
         </p>
 
         <Button 
           variant="primary" 
           size="lg" 
           onClick={onStartCall} 
-          className="mt-4 w-80 text-base py-7 bg-[#00704A] hover:bg-[#005a3a] text-white rounded-full font-semibold shadow-xl transition-all hover:scale-105"
+          className="w-96 text-lg py-8 bg-[#00704A] hover:bg-[#005a3a] text-white rounded-full font-bold shadow-2xl transition-all hover:scale-105 hover:shadow-[0_8px_30px_rgba(0,112,74,0.4)] uppercase tracking-wider"
         >
           {startButtonText}
         </Button>
+        
+        <p className="text-sm text-gray-400 mt-8">
+          Powered by LiveKit AI Agents
+        </p>
       </section>
 
       <div className="fixed bottom-5 left-0 flex w-full items-center justify-center">
