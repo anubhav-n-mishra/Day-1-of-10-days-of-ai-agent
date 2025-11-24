@@ -20,9 +20,9 @@ export interface AppConfig {
 }
 
 export const APP_CONFIG_DEFAULTS: AppConfig = {
-  companyName: 'Starbucks Voice Barista',
-  pageTitle: 'Starbucks Voice Barista - Order with AI',
-  pageDescription: 'Order your favorite Starbucks drink using voice AI technology',
+  companyName: 'HealthifyMe',
+  pageTitle: 'HealthifyMe AI Wellness Companion',
+  pageDescription: 'Your personal AI health coach - Daily check-ins powered by voice',
 
   supportsChatInput: true,
   supportsVideoInput: false,
@@ -30,10 +30,10 @@ export const APP_CONFIG_DEFAULTS: AppConfig = {
   isPreConnectBufferEnabled: true,
 
   logo: '/ccd-logo.svg',
-  accent: '#00704A',
+  accent: '#1CAC78',
   logoDark: '/lk-logo-dark.svg',
-  accentDark: '#005a3a',
-  startButtonText: 'Start Ordering',
+  accentDark: '#159A68',
+  startButtonText: 'Start Your Check-In',
 
   // for LiveKit Cloud Sandbox
   sandboxId: undefined,
