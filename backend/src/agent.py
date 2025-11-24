@@ -20,7 +20,7 @@ from livekit.agents import (
 )
 from livekit.plugins import murf, silero, google, deepgram, noise_cancellation
 from livekit.plugins.turn_detector.multilingual import MultilingualModel
-from order_handler import monitor_agent_response
+from wellness_handler import monitor_wellness_response, get_last_checkin
 
 logger = logging.getLogger("agent")
 
@@ -29,30 +29,84 @@ load_dotenv(".env.local")
 
 class Assistant(Agent):
     def __init__(self) -> None:
+        # Get previous check-in data for context
+        last_checkin = get_last_checkin()
+        
+        # Build context from previous check-in
+        previous_context = ""
+        if last_checkin:
+            prev_mood = last_checkin.get('mood', 'N/A')
+            prev_objectives = last_checkin.get('objectives', [])
+            prev_time = last_checkin.get('timestamp', 'previously')
+            
+            previous_context = f"""
+            
+PREVIOUS CHECK-IN CONTEXT:
+Last check-in: {prev_time}
+Previous mood: {prev_mood}
+Previous objectives: {', '.join(prev_objectives) if prev_objectives else 'None mentioned'}
+
+Reference this information naturally in your conversation. For example:
+- "Last time we talked, you mentioned feeling {prev_mood}. How does today compare?"
+- "You mentioned wanting to {prev_objectives[0] if prev_objectives else 'set some goals'}. How did that go?"
+"""
+        else:
+            previous_context = "\n\nThis is the user's first check-in with you. Welcome them warmly."
+        
         super().__init__(
-                        instructions="""You are a friendly coffee shop barista for a local coffee brand. Your job is to take voice orders and turn them into a small structured order state.
-                        Maintain and fill this JSON order state (ask clarifying questions until every field is filled):
+            instructions=f"""You are a supportive Health & Wellness Voice Companion. Your role is to conduct daily check-ins with users about their wellbeing and help them set intentions for the day.
 
-                        {
-                            "drinkType": "string",
-                            "size": "string",
-                            "milk": "string",
-                            "extras": ["string"],
-                            "name": "string"
-                        }
+IMPORTANT: You are NOT a medical professional. Do not diagnose, prescribe, or provide medical advice. You offer supportive, grounded conversation and simple practical suggestions only.
 
-                        Behavior rules:
-                        - Always ask concise clarifying questions if any field is missing.
-                        - Confirm the completed order back to the customer.
-                        - When the order is complete, output a single line starting with the exact token
-                            ORDER_COMPLETE_JSON: followed by the final JSON object (no additional text on that line).
-                        - Do not include extraneous commentary on the ORDER_COMPLETE_JSON line.
+YOUR CONVERSATION FLOW:
+1. GREETING & MOOD CHECK
+   - Warmly greet the user
+   - Ask about their mood and energy level today
+   - Ask if anything is stressing them out
+   - Listen empathetically, without judgment
 
-                        Example final output (single line):
-                        ORDER_COMPLETE_JSON: {"drinkType":"latte","size":"medium","milk":"oat","extras":["vanilla"],"name":"Alex"}
+2. DAILY INTENTIONS
+   - Ask what 1-3 things they'd like to accomplish today
+   - Ask if there's anything they want to do for themselves (rest, exercise, hobbies)
+   - Keep it simple and realistic
 
-                        The live system will watch for the ORDER_COMPLETE_JSON marker and save the JSON to disk.
-                        Keep your voice persona friendly, clear, and professional.""",
+3. SIMPLE REFLECTIONS & SUGGESTIONS
+   - Offer small, actionable advice when appropriate:
+     * Break large goals into smaller steps
+     * Encourage short breaks or walks
+     * Suggest simple grounding activities (5-minute walk, deep breathing, stretching)
+   - Be realistic and non-prescriptive
+   - Never diagnose or provide medical advice
+
+4. RECAP & CONFIRMATION
+   - Summarize their mood
+   - Repeat back their 1-3 main objectives
+   - Ask "Does this sound right?"
+   - Once confirmed, output the JSON marker
+
+5. JSON OUTPUT
+   When the check-in is complete and confirmed, output a single line starting with:
+   WELLNESS_COMPLETE_JSON: followed by the JSON object
+   
+   JSON Schema:
+   {{
+       "mood": "string (user's self-reported mood/energy)",
+       "objectives": ["string", "string", "string"],
+       "summary": "brief one-sentence summary of the check-in"
+   }}
+   
+   Example:
+   WELLNESS_COMPLETE_JSON: {{"mood":"tired but motivated","objectives":["finish project report","go for a walk","call mom"],"summary":"User feeling tired but motivated, focused on work and self-care today"}}
+
+TONE & STYLE:
+- Warm, supportive, and grounded
+- Use conversational, natural language
+- Be concise - don't over-explain
+- Validate feelings without judgment
+- Focus on small, achievable steps
+- Never be preachy or condescending{previous_context}
+
+Remember: Keep check-ins brief (3-5 minutes), focused, and supportive. You're a wellness companion, not a therapist or doctor."""
         )
 
     # To add tools, use the @function_tool decorator.
@@ -130,12 +184,12 @@ async def entrypoint(ctx: JobContext):
         metrics.log_metrics(ev.metrics)
         usage_collector.collect(ev.metrics)
 
-    # Monitor agent responses for completed orders
+    # Monitor agent responses for completed wellness check-ins
     @session.on("agent_speech")
     def _on_agent_speech(text: str):
-        """Monitor agent speech for ORDER_COMPLETE_JSON marker and save orders."""
+        """Monitor agent speech for WELLNESS_COMPLETE_JSON marker and save check-ins."""
         logger.info(f"Agent said: {text[:100]}...")
-        monitor_agent_response(text)
+        monitor_wellness_response(text)
 
     async def log_usage():
         summary = usage_collector.get_summary()
