@@ -1,6 +1,8 @@
 import logging
+import json
 import sys
 from pathlib import Path
+from datetime import datetime
 
 # Add src to path for imports
 sys.path.insert(0, str(Path(__file__).parent))
@@ -17,114 +19,356 @@ from livekit.agents import (
     cli,
     metrics,
     tokenize,
+    function_tool,
+    RunContext,
 )
 from livekit.plugins import murf, silero, google, deepgram, noise_cancellation
 from livekit.plugins.turn_detector.multilingual import MultilingualModel
-from wellness_handler import monitor_wellness_response, get_last_checkin
 
 logger = logging.getLogger("agent")
 
 load_dotenv(".env.local")
 
+# Load tutor content
+CONTENT_PATH = Path(__file__).parent.parent / "day4_tutor_content.json"
+SESSION_PATH = Path(__file__).parent.parent / "learning_sessions.json"
 
-class Assistant(Agent):
-    def __init__(self) -> None:
-        # Get previous check-in data for context
-        last_checkin = get_last_checkin()
-        
-        # Build context from previous check-in
-        previous_context = ""
-        if last_checkin:
-            prev_mood = last_checkin.get('mood', 'N/A')
-            prev_objectives = last_checkin.get('objectives', [])
-            prev_time = last_checkin.get('timestamp', 'previously')
-            
-            previous_context = f"""
-            
-PREVIOUS CHECK-IN CONTEXT:
-Last check-in: {prev_time}
-Previous mood: {prev_mood}
-Previous objectives: {', '.join(prev_objectives) if prev_objectives else 'None mentioned'}
+def load_tutor_content():
+    """Load the course content from JSON file."""
+    with open(CONTENT_PATH, 'r') as f:
+        return json.load(f)
 
-Reference this information naturally in your conversation. For example:
-- "Last time we talked, you mentioned feeling {prev_mood}. How does today compare?"
-- "You mentioned wanting to {prev_objectives[0] if prev_objectives else 'set some goals'}. How did that go?"
-"""
-        else:
-            previous_context = "\n\nThis is the user's first check-in with you. Welcome them warmly."
+def save_session(session_data):
+    """Save learning session data."""
+    try:
+        sessions = []
+        if SESSION_PATH.exists():
+            with open(SESSION_PATH, 'r') as f:
+                sessions = json.load(f)
         
+        sessions.append({
+            **session_data,
+            "timestamp": datetime.now().isoformat()
+        })
+        
+        with open(SESSION_PATH, 'w') as f:
+            json.dump(sessions, f, indent=2)
+        
+        logger.info(f"Saved learning session: {session_data.get('mode', 'unknown')}")
+    except Exception as e:
+        logger.error(f"Error saving session: {e}")
+
+# Agent definitions for each mode
+class GreeterAgent(Agent):
+    """Initial agent that helps user choose a learning mode."""
+    
+    @function_tool
+    async def transfer_to_learn_mode(self, context: RunContext) -> Agent:
+        """Transfer to Learn mode where the agent explains concepts. Use this when the user says they want to learn, or asks for explanations."""
+        logger.info("Transferring to Learn Mode")
+        # Switch voice to Matthew
+        self.session._tts = murf.TTS(
+            voice="en-US-Matthew",
+            style="Conversation",
+            tokenizer=tokenize.basic.SentenceTokenizer(min_sentence_len=2),
+            text_pacing=True
+        )
+        logger.info("Switched voice to Matthew (Learn Mode)")
+        return LearnAgent()
+    
+    @function_tool
+    async def transfer_to_quiz_mode(self, context: RunContext) -> Agent:
+        """Transfer to Quiz mode where the agent asks questions. Use this when the user wants to be quizzed or tested."""
+        logger.info("Transferring to Quiz Mode")
+        # Switch voice to Alicia
+        self.session._tts = murf.TTS(
+            voice="en-US-Alicia",
+            style="Conversation",
+            tokenizer=tokenize.basic.SentenceTokenizer(min_sentence_len=2),
+            text_pacing=True
+        )
+        logger.info("Switched voice to Alicia (Quiz Mode)")
+        return QuizAgent()
+    
+    @function_tool
+    async def transfer_to_teach_back_mode(self, context: RunContext) -> Agent:
+        """Transfer to Teach Back mode where user explains concepts. Use this when the user wants to teach or explain concepts back."""
+        logger.info("Transferring to Teach Back Mode")
+        # Switch voice to Ken
+        self.session._tts = murf.TTS(
+            voice="en-US-Ken",
+            style="Conversation",
+            tokenizer=tokenize.basic.SentenceTokenizer(min_sentence_len=2),
+            text_pacing=True
+        )
+        logger.info("Switched voice to Ken (Teach Back Mode)")
+        return TeachBackAgent()
+    
+    def __init__(self):
         super().__init__(
-            instructions=f"""You are a supportive Health & Wellness Voice Companion. Your role is to conduct daily check-ins with users about their wellbeing and help them set intentions for the day.
+            instructions="""You are Matthew, a friendly Learning Assistant for Coursera's active recall system.
 
-IMPORTANT: You are NOT a medical professional. Do not diagnose, prescribe, or provide medical advice. You offer supportive, grounded conversation and simple practical suggestions only.
+FIRST MESSAGE (say this immediately when you start):
+"Welcome to Coursera's Teach-the-Tutor! I'm Matthew, and I'll help you master programming through active recall. We have three powerful learning modes:
 
-YOUR CONVERSATION FLOW:
-1. GREETING & MOOD CHECK
-   - Warmly greet the user
-   - Ask about their mood and energy level today
-   - Ask if anything is stressing them out
-   - Listen empathetically, without judgment
+1. Learn Mode - I'll explain programming concepts in detail
+2. Quiz Mode - Test your knowledge with questions
+3. Teach Back Mode - Teach me what you learned for deeper understanding
 
-2. DAILY INTENTIONS
-   - Ask what 1-3 things they'd like to accomplish today
-   - Ask if there's anything they want to do for themselves (rest, exercise, hobbies)
-   - Keep it simple and realistic
+Which mode would you like to try? Just say 'learn', 'quiz', or 'teach back'."
 
-3. SIMPLE REFLECTIONS & SUGGESTIONS
-   - Offer small, actionable advice when appropriate:
-     * Break large goals into smaller steps
-     * Encourage short breaks or walks
-     * Suggest simple grounding activities (5-minute walk, deep breathing, stretching)
-   - Be realistic and non-prescriptive
-   - Never diagnose or provide medical advice
+SWITCHING MODES:
+Listen for what the user wants:
+- "learn" / "explain" / "teach me" → use transfer_to_learn_mode
+- "quiz" / "test" / "questions" → use transfer_to_quiz_mode  
+- "teach back" / "I'll teach" / "explain back" → use transfer_to_teach_back_mode
 
-4. RECAP & CONFIRMATION
-   - Summarize their mood
-   - Repeat back their 1-3 main objectives
-   - Ask "Does this sound right?"
-   - Once confirmed, output the JSON marker
-
-5. JSON OUTPUT
-   When the check-in is complete and confirmed, output a single line starting with:
-   WELLNESS_COMPLETE_JSON: followed by the JSON object
-   
-   JSON Schema:
-   {{
-       "mood": "string (user's self-reported mood/energy)",
-       "objectives": ["string", "string", "string"],
-       "summary": "brief one-sentence summary of the check-in"
-   }}
-   
-   Example:
-   WELLNESS_COMPLETE_JSON: {{"mood":"tired but motivated","objectives":["finish project report","go for a walk","call mom"],"summary":"User feeling tired but motivated, focused on work and self-care today"}}
-
-TONE & STYLE:
-- Warm, supportive, and grounded
-- Use conversational, natural language
-- Be concise - don't over-explain
-- Validate feelings without judgment
-- Focus on small, achievable steps
-- Never be preachy or condescending{previous_context}
-
-Remember: Keep check-ins brief (3-5 minutes), focused, and supportive. You're a wellness companion, not a therapist or doctor."""
+When transferring, just use the tool directly - don't say anything, the new agent will greet them."""
         )
 
-    # To add tools, use the @function_tool decorator.
-    # Here's an example that adds a simple weather tool.
-    # You also have to add `from livekit.agents import function_tool, RunContext` to the top of this file
-    # @function_tool
-    # async def lookup_weather(self, context: RunContext, location: str):
-    #     """Use this tool to look up current weather information in the given location.
-    #
-    #     If the location is not supported by the weather service, the tool will indicate this. You must tell the user the location's weather is unavailable.
-    #
-    #     Args:
-    #         location: The location to look up weather information for (e.g. city name)
-    #     """
-    #
-    #     logger.info(f"Looking up weather for {location}")
-    #
-    #     return "sunny with a temperature of 70 degrees."
+
+class LearnAgent(Agent):
+    """Agent for Learn mode - explains concepts to the user."""
+    
+    @function_tool
+    async def transfer_to_quiz_mode(self, context: RunContext) -> Agent:
+        """Transfer to Quiz mode when user wants to be quizzed."""
+        logger.info("Transferring from Learn to Quiz Mode")
+        # Switch voice to Alicia
+        self.session._tts = murf.TTS(
+            voice="en-US-Alicia",
+            style="Conversation",
+            tokenizer=tokenize.basic.SentenceTokenizer(min_sentence_len=2),
+            text_pacing=True
+        )
+        logger.info("Switched voice to Alicia (Quiz Mode)")
+        return QuizAgent()
+    
+    @function_tool
+    async def transfer_to_teach_back_mode(self, context: RunContext) -> Agent:
+        """Transfer to Teach Back mode when user wants to explain concepts."""
+        logger.info("Transferring from Learn to Teach Back Mode")
+        # Switch voice to Ken
+        self.session._tts = murf.TTS(
+            voice="en-US-Ken",
+            style="Conversation",
+            tokenizer=tokenize.basic.SentenceTokenizer(min_sentence_len=2),
+            text_pacing=True
+        )
+        logger.info("Switched voice to Ken (Teach Back Mode)")
+        return TeachBackAgent()
+    
+    @function_tool
+    async def transfer_to_greeter(self, context: RunContext) -> Agent:
+        """Return to main menu."""
+        logger.info("Returning to Greeter from Learn Mode")
+        # Keep Matthew voice for Greeter
+        return GreeterAgent()
+    
+    def __init__(self):
+        super().__init__(
+            instructions="""You are Matthew, a patient and enthusiastic programming instructor in Coursera's Learn Mode.
+
+FIRST MESSAGE (say immediately when you start):
+"Hi! I'm Matthew, your Learn Mode instructor. I'll help you understand programming concepts deeply. We cover topics like variables, loops, functions, conditionals, lists, and dictionaries.
+
+Which topic would you like me to explain? Just tell me what you're curious about!"
+
+YOUR ROLE:
+1. When user asks about a topic, explain it clearly and thoroughly using Gemini
+2. Break down complex ideas into simple parts
+3. Use real-world analogies and concrete examples
+4. Be enthusiastic and encouraging
+5. After explaining, ask if they want to switch modes or learn more
+
+EXPLAINING:
+- Start with the big picture, then dive into details
+- Give practical code examples
+- Use analogies that make sense
+- Check for understanding
+- Be conversational and friendly
+
+MODE SWITCHING:
+If they want to switch:
+- Quiz mode → use transfer_to_quiz_mode
+- Teach Back mode → use transfer_to_teach_back_mode
+- Main menu → use transfer_to_greeter
+
+After each explanation, suggest: "Want to learn another topic, test yourself with a quiz, or try teaching it back?"
+
+Use your knowledge to generate clear, accurate explanations on the fly."""
+        )
+
+
+class QuizAgent(Agent):
+    """Agent for Quiz mode - asks questions to test understanding."""
+    
+    @function_tool
+    async def transfer_to_learn_mode(self, context: RunContext) -> Agent:
+        """Transfer to Learn mode when user wants explanations."""
+        logger.info("Transferring from Quiz to Learn Mode")
+        # Switch voice to Matthew
+        self.session._tts = murf.TTS(
+            voice="en-US-Matthew",
+            style="Conversation",
+            tokenizer=tokenize.basic.SentenceTokenizer(min_sentence_len=2),
+            text_pacing=True
+        )
+        logger.info("Switched voice to Matthew (Learn Mode)")
+        return LearnAgent()
+    
+    @function_tool
+    async def transfer_to_teach_back_mode(self, context: RunContext) -> Agent:
+        """Transfer to Teach Back mode when user wants to explain."""
+        logger.info("Transferring from Quiz to Teach Back Mode")
+        # Switch voice to Ken
+        self.session._tts = murf.TTS(
+            voice="en-US-Ken",
+            style="Conversation",
+            tokenizer=tokenize.basic.SentenceTokenizer(min_sentence_len=2),
+            text_pacing=True
+        )
+        logger.info("Switched voice to Ken (Teach Back Mode)")
+        return TeachBackAgent()
+    
+    @function_tool
+    async def transfer_to_greeter(self, context: RunContext) -> Agent:
+        """Return to main menu."""
+        logger.info("Returning to Greeter from Quiz Mode")
+        # Switch voice to Matthew for Greeter
+        self.session._tts = murf.TTS(
+            voice="en-US-Matthew",
+            style="Conversation",
+            tokenizer=tokenize.basic.SentenceTokenizer(min_sentence_len=2),
+            text_pacing=True
+        )
+        logger.info("Switched voice to Matthew (Greeter)")
+        return GreeterAgent()
+    
+    def __init__(self):
+        super().__init__(
+            instructions="""You are Alicia, an encouraging and energetic quiz instructor for Coursera's Quiz Mode.
+
+FIRST MESSAGE (say immediately when you start):
+"Hey there! I'm Alicia, your Quiz Mode instructor! I love testing knowledge and helping you discover what you really understand. I can quiz you on variables, loops, functions, conditionals, lists, dictionaries, and more!
+
+What topic should we quiz today? Pick something you've been learning!"
+
+YOUR ROLE:
+1. When user picks a topic, generate 1-2 thoughtful questions about it using Gemini
+2. Listen carefully to their answer
+3. Give specific, encouraging feedback:
+   - If correct: Celebrate what they got right specifically
+   - If incomplete: Point out what's missing with hints
+   - If incorrect: Gently explain the right answer and why
+4. Ask if they want more questions or to switch modes
+
+QUIZ STYLE:
+- Make questions clear and focused
+- Test understanding, not memorization
+- Be encouraging and positive
+- Celebrate effort and progress
+- Make wrong answers into learning moments
+- Use follow-up questions to probe deeper
+
+MODE SWITCHING:
+- Learn mode → use transfer_to_learn_mode
+- Teach Back mode → use transfer_to_teach_back_mode
+- Main menu → use transfer_to_greeter
+
+After each question, ask: "Ready for another question, want to learn something new, or try teaching it back?"
+
+Generate questions dynamically using your knowledge - keep them relevant and at the right difficulty level!"""
+        )
+
+
+class TeachBackAgent(Agent):
+    """Agent for Teach Back mode - user explains concepts."""
+    
+    @function_tool
+    async def transfer_to_learn_mode(self, context: RunContext) -> Agent:
+        """Transfer to Learn mode when user needs explanation."""
+        logger.info("Transferring from Teach Back to Learn Mode")
+        # Switch voice to Matthew
+        self.session._tts = murf.TTS(
+            voice="en-US-Matthew",
+            style="Conversation",
+            tokenizer=tokenize.basic.SentenceTokenizer(min_sentence_len=2),
+            text_pacing=True
+        )
+        logger.info("Switched voice to Matthew (Learn Mode)")
+        return LearnAgent()
+    
+    @function_tool
+    async def transfer_to_quiz_mode(self, context: RunContext) -> Agent:
+        """Transfer to Quiz mode when user wants questions."""
+        logger.info("Transferring from Teach Back to Quiz Mode")
+        # Switch voice to Alicia
+        self.session._tts = murf.TTS(
+            voice="en-US-Alicia",
+            style="Conversation",
+            tokenizer=tokenize.basic.SentenceTokenizer(min_sentence_len=2),
+            text_pacing=True
+        )
+        logger.info("Switched voice to Alicia (Quiz Mode)")
+        return QuizAgent()
+    
+    @function_tool
+    async def transfer_to_greeter(self, context: RunContext) -> Agent:
+        """Return to main menu."""
+        logger.info("Returning to Greeter from Teach Back Mode")
+        # Switch voice to Matthew for Greeter
+        self.session._tts = murf.TTS(
+            voice="en-US-Matthew",
+            style="Conversation",
+            tokenizer=tokenize.basic.SentenceTokenizer(min_sentence_len=2),
+            text_pacing=True
+        )
+        logger.info("Switched voice to Matthew (Greeter)")
+        return GreeterAgent()
+    
+    def __init__(self):
+        super().__init__(
+            instructions="""You are Ken, a thoughtful mentor and active listener for Coursera's Teach Back Mode.
+
+FIRST MESSAGE (say immediately when you start):
+"Hello! I'm Ken, your Teach Back instructor. Teaching others is one of the best ways to truly master a subject. I'm here to listen carefully as you explain programming concepts to me.
+
+Pick any programming topic - variables, loops, functions, conditionals, lists, dictionaries, or anything else - and teach me as if I'm learning it for the first time. I'm all ears!"
+
+YOUR ROLE:
+1. Listen attentively as the user explains a concept
+2. After they finish, give constructive feedback using Gemini to evaluate:
+   - Specific praise for what they explained well
+   - Key points they covered correctly
+   - Anything important they might have missed (gently)
+   - Overall assessment and encouragement
+3. Offer to hear another explanation or switch modes
+
+FEEDBACK STYLE:
+- Start with genuine praise for specific things they did well
+- Mention 2-3 key points they got right
+- If something's missing, phrase it as: "One thing you could add is..."
+- Be encouraging and supportive, never harsh
+- Help them see teaching as practice, not a test
+- End on a positive note
+
+EVALUATING:
+Use Gemini to assess if their explanation covered:
+- The core concept clearly
+- Practical examples
+- When/why it's used
+- Clear and understandable language
+
+MODE SWITCHING:
+- Learn mode → use transfer_to_learn_mode
+- Quiz mode → use transfer_to_quiz_mode
+- Main menu → use transfer_to_greeter
+
+After feedback, ask: "Want to teach me another concept, or try a different learning mode?"
+
+Use your knowledge to give thoughtful, helpful feedback that builds confidence!"""
+        )
 
 
 def prewarm(proc: JobProcess):
@@ -133,50 +377,26 @@ def prewarm(proc: JobProcess):
 
 async def entrypoint(ctx: JobContext):
     # Logging setup
-    # Add any other context you want in all log entries here
     ctx.log_context_fields = {
         "room": ctx.room.name,
     }
 
-    # Set up a voice AI pipeline using OpenAI, Cartesia, AssemblyAI, and the LiveKit turn detector
+    # Set up session with voice switching
     session = AgentSession(
-        # Speech-to-text (STT) is your agent's ears, turning the user's speech into text that the LLM can understand
-        # See all available models at https://docs.livekit.io/agents/models/stt/
         stt=deepgram.STT(model="nova-3"),
-        # A Large Language Model (LLM) is your agent's brain, processing user input and generating a response
-        # See all available models at https://docs.livekit.io/agents/models/llm/
-        llm=google.LLM(
-                model="gemini-2.5-flash",
-            ),
-        # Text-to-speech (TTS) is your agent's voice, turning the LLM's text into speech that the user can hear
-        # See all available models as well as voice selections at https://docs.livekit.io/agents/models/tts/
+        llm=google.LLM(model="gemini-2.5-flash"),
         tts=murf.TTS(
-                voice="en-US-matthew", 
-                style="Conversation",
-                tokenizer=tokenize.basic.SentenceTokenizer(min_sentence_len=2),
-                text_pacing=True
-            ),
-        # VAD and turn detection are used to determine when the user is speaking and when the agent should respond
-        # See more at https://docs.livekit.io/agents/build/turns
+            voice="en-US-Matthew", 
+            style="Conversation",
+            tokenizer=tokenize.basic.SentenceTokenizer(min_sentence_len=2),
+            text_pacing=True
+        ),
         turn_detection=MultilingualModel(),
         vad=ctx.proc.userdata["vad"],
-        # allow the LLM to generate a response while waiting for the end of turn
-        # See more at https://docs.livekit.io/agents/build/audio/#preemptive-generation
         preemptive_generation=True,
     )
 
-    # To use a realtime model instead of a voice pipeline, use the following session setup instead.
-    # (Note: This is for the OpenAI Realtime API. For other providers, see https://docs.livekit.io/agents/models/realtime/))
-    # 1. Install livekit-agents[openai]
-    # 2. Set OPENAI_API_KEY in .env.local
-    # 3. Add `from livekit.plugins import openai` to the top of this file
-    # 4. Use the following session setup instead of the version above
-    # session = AgentSession(
-    #     llm=openai.realtime.RealtimeModel(voice="marin")
-    # )
-
-    # Metrics collection, to measure pipeline performance
-    # For more information, see https://docs.livekit.io/agents/build/metrics/
+    # Metrics collection
     usage_collector = metrics.UsageCollector()
 
     @session.on("metrics_collected")
@@ -184,12 +404,10 @@ async def entrypoint(ctx: JobContext):
         metrics.log_metrics(ev.metrics)
         usage_collector.collect(ev.metrics)
 
-    # Monitor agent responses for completed wellness check-ins
     @session.on("agent_speech")
     def _on_agent_speech(text: str):
-        """Monitor agent speech for WELLNESS_COMPLETE_JSON marker and save check-ins."""
+        """Monitor agent speech."""
         logger.info(f"Agent said: {text[:100]}...")
-        monitor_wellness_response(text)
 
     async def log_usage():
         summary = usage_collector.get_summary()
@@ -197,26 +415,57 @@ async def entrypoint(ctx: JobContext):
 
     ctx.add_shutdown_callback(log_usage)
 
-    # # Add a virtual avatar to the session, if desired
-    # # For other providers, see https://docs.livekit.io/agents/models/avatar/
-    # avatar = hedra.AvatarSession(
-    #   avatar_id="...",  # See https://docs.livekit.io/agents/models/avatar/plugins/hedra
-    # )
-    # # Start the avatar and wait for it to join
-    # await avatar.start(session, room=ctx.room)
+    # Configure voice when agent changes
+    @session.on("agent_started")
+    def _on_agent_started(agent: Agent):
+        _configure_voice(session, agent)
 
-    # Start the session, which initializes the voice pipeline and warms up the models
+    # Start with greeter agent
     await session.start(
-        agent=Assistant(),
+        agent=GreeterAgent(),
         room=ctx.room,
         room_input_options=RoomInputOptions(
-            # For telephony applications, use `BVCTelephony` for best results
             noise_cancellation=noise_cancellation.BVC(),
         ),
     )
 
-    # Join the room and connect to the user
     await ctx.connect()
+
+
+def _configure_voice(session: AgentSession, agent: Agent):
+    """Configure TTS voice based on agent type."""
+    if isinstance(agent, LearnAgent):
+        session._tts = murf.TTS(
+            voice="en-US-Matthew",
+            style="Conversation", 
+            tokenizer=tokenize.basic.SentenceTokenizer(min_sentence_len=2),
+            text_pacing=True
+        )
+        logger.info("Switched to Matthew (Learn Mode)")
+    elif isinstance(agent, QuizAgent):
+        session._tts = murf.TTS(
+            voice="en-US-Alicia",
+            style="Conversation",
+            tokenizer=tokenize.basic.SentenceTokenizer(min_sentence_len=2),
+            text_pacing=True
+        )
+        logger.info("Switched to Alicia (Quiz Mode)")
+    elif isinstance(agent, TeachBackAgent):
+        session._tts = murf.TTS(
+            voice="en-US-Ken",
+            style="Conversation",
+            tokenizer=tokenize.basic.SentenceTokenizer(min_sentence_len=2),
+            text_pacing=True
+        )
+        logger.info("Switched to Ken (Teach Back Mode)")
+    else:
+        session._tts = murf.TTS(
+            voice="en-US-Matthew",
+            style="Conversation",
+            tokenizer=tokenize.basic.SentenceTokenizer(min_sentence_len=2),
+            text_pacing=True
+        )
+        logger.info("Switched to Matthew (Greeter)")
 
 
 if __name__ == "__main__":
