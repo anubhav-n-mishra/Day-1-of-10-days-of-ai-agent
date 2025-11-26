@@ -3,6 +3,7 @@ import json
 import sys
 from pathlib import Path
 from datetime import datetime
+from typing import Dict, Optional
 
 # Add src to path for imports
 sys.path.insert(0, str(Path(__file__).parent))
@@ -29,350 +30,225 @@ logger = logging.getLogger("agent")
 
 load_dotenv(".env.local")
 
-# Load tutor content
-CONTENT_PATH = Path(__file__).parent.parent / "day4_tutor_content.json"
-SESSION_PATH = Path(__file__).parent.parent / "learning_sessions.json"
+# Load Razorpay FAQ content
+FAQ_PATH = Path(__file__).parent.parent / "razorpay_faq.json"
+LEADS_PATH = Path(__file__).parent.parent / "leads.json"
 
-def load_tutor_content():
-    """Load the course content from JSON file."""
-    with open(CONTENT_PATH, 'r') as f:
+def load_faq_content():
+    """Load the FAQ content from JSON file."""
+    with open(FAQ_PATH, 'r') as f:
         return json.load(f)
 
-def save_session(session_data):
-    """Save learning session data."""
+def save_lead(lead_data: Dict):
+    """Save lead data to JSON file."""
     try:
-        sessions = []
-        if SESSION_PATH.exists():
-            with open(SESSION_PATH, 'r') as f:
-                sessions = json.load(f)
+        leads = []
+        if LEADS_PATH.exists():
+            with open(LEADS_PATH, 'r') as f:
+                leads = json.load(f)
         
-        sessions.append({
-            **session_data,
-            "timestamp": datetime.now().isoformat()
+        leads.append({
+            **lead_data,
+            "timestamp": datetime.now().isoformat(),
+            "call_id": datetime.now().strftime("%Y%m%d_%H%M%S")
         })
         
-        with open(SESSION_PATH, 'w') as f:
-            json.dump(sessions, f, indent=2)
+        with open(LEADS_PATH, 'w') as f:
+            json.dump(leads, f, indent=2)
         
-        logger.info(f"Saved learning session: {session_data.get('mode', 'unknown')}")
+        logger.info(f"Saved lead: {lead_data.get('name', 'Unknown')}")
+        return True
     except Exception as e:
-        logger.error(f"Error saving session: {e}")
+        logger.error(f"Error saving lead: {e}")
+        return False
 
-# Agent definitions for each mode
-class GreeterAgent(Agent):
-    """Initial agent that helps user choose a learning mode."""
-    
-    @function_tool
-    async def transfer_to_learn_mode(self, context: RunContext) -> Agent:
-        """Transfer to Learn mode where the agent explains concepts. Use this when the user says they want to learn, or asks for explanations."""
-        logger.info("Transferring to Learn Mode")
-        # Switch voice to Matthew
-        self.session._tts = murf.TTS(
-            voice="en-US-Matthew",
-            style="Conversation",
-            tokenizer=tokenize.basic.SentenceTokenizer(min_sentence_len=2),
-            text_pacing=True
-        )
-        logger.info("Switched voice to Matthew (Learn Mode)")
-        return LearnAgent()
-    
-    @function_tool
-    async def transfer_to_quiz_mode(self, context: RunContext) -> Agent:
-        """Transfer to Quiz mode where the agent asks questions. Use this when the user wants to be quizzed or tested."""
-        logger.info("Transferring to Quiz Mode")
-        # Switch voice to Alicia
-        self.session._tts = murf.TTS(
-            voice="en-US-Alicia",
-            style="Conversation",
-            tokenizer=tokenize.basic.SentenceTokenizer(min_sentence_len=2),
-            text_pacing=True
-        )
-        logger.info("Switched voice to Alicia (Quiz Mode)")
-        return QuizAgent()
-    
-    @function_tool
-    async def transfer_to_teach_back_mode(self, context: RunContext) -> Agent:
-        """Transfer to Teach Back mode where user explains concepts. Use this when the user wants to teach or explain concepts back."""
-        logger.info("Transferring to Teach Back Mode")
-        # Switch voice to Ken
-        self.session._tts = murf.TTS(
-            voice="en-US-Ken",
-            style="Conversation",
-            tokenizer=tokenize.basic.SentenceTokenizer(min_sentence_len=2),
-            text_pacing=True
-        )
-        logger.info("Switched voice to Ken (Teach Back Mode)")
-        return TeachBackAgent()
+class RazorpaySDRAgent(Agent):
+    """SDR Agent for Razorpay that answers questions and collects lead information."""
     
     def __init__(self):
+        # Load FAQ content
+        self.faq_content = load_faq_content()
+        
+        # Lead information storage
+        self.lead_info = {
+            "name": None,
+            "company": None,
+            "email": None,
+            "role": None,
+            "use_case": None,
+            "team_size": None,
+            "timeline": None
+        }
+        
+        # Build FAQ context for the agent
+        faq_text = self._build_faq_context()
+        
         super().__init__(
-            instructions="""You are Matthew, a friendly Learning Assistant for Coursera's active recall system.
+            instructions=f"""You are Priya, a friendly and knowledgeable Sales Development Representative (SDR) for Razorpay, India's leading payment gateway and banking platform.
 
-FIRST MESSAGE (say this immediately when you start):
-"Welcome to Coursera's Teach-the-Tutor! I'm Matthew, and I'll help you master programming through active recall. We have three powerful learning modes:
+COMPANY INFORMATION:
+{json.dumps(self.faq_content['company'], indent=2)}
 
-1. Learn Mode - I'll explain programming concepts in detail
-2. Quiz Mode - Test your knowledge with questions
-3. Teach Back Mode - Teach me what you learned for deeper understanding
+PRODUCTS:
+{json.dumps(self.faq_content['products'], indent=2)}
 
-Which mode would you like to try? Just say 'learn', 'quiz', or 'teach back'."
+PRICING:
+{json.dumps(self.faq_content['pricing'], indent=2)}
 
-SWITCHING MODES:
-Listen for what the user wants:
-- "learn" / "explain" / "teach me" → use transfer_to_learn_mode
-- "quiz" / "test" / "questions" → use transfer_to_quiz_mode  
-- "teach back" / "I'll teach" / "explain back" → use transfer_to_teach_back_mode
+FAQ DATABASE:
+{faq_text}
 
-When transferring, just use the tool directly - don't say anything, the new agent will greet them."""
+YOUR ROLE AS AN SDR:
+
+1. GREETING (First Interaction):
+"Hello! I'm Priya from Razorpay. Thank you for connecting with us today! Before we dive in, I'd love to learn more about you and your business. May I know your name?"
+
+2. DISCOVERY & NEEDS ASSESSMENT:
+- Once you have their name, ask: "Great to meet you, [Name]! What company are you with, and what brought you to Razorpay today?"
+- Listen actively to understand their needs
+- Ask relevant follow-up questions about their business
+- Keep the conversation natural and consultative
+
+3. ANSWERING QUESTIONS:
+- Use ONLY the FAQ information provided above
+- If asked about products, pricing, features, or company info, refer to the FAQ database
+- Be specific and accurate - don't make up information
+- If something isn't in the FAQ, say: "That's a great question! Let me connect you with our technical team who can provide detailed information on that."
+
+4. LEAD QUALIFICATION (Collect Naturally):
+Throughout the conversation, naturally collect these details:
+- Name (ask first)
+- Company name (ask early in discovery)
+- Email address (say: "I'd love to send you some resources. What's the best email to reach you?")
+- Role/Position (ask: "What's your role at [Company]?")
+- Use case (understand from their needs: "What would you primarily use Razorpay for?")
+- Team size (ask: "How large is your team?")
+- Timeline (ask: "When are you looking to implement a payment solution - immediately, in the next few months, or just exploring?")
+
+Use the collect_lead_info tool to store each piece of information as you collect it.
+
+5. CONSULTATIVE SELLING:
+- Match their needs to relevant Razorpay products
+- Highlight benefits specific to their use case
+- Mention success stories with similar businesses
+- Be enthusiastic but not pushy
+
+6. HANDLING OBJECTIONS:
+- Listen to concerns
+- Address with FAQ information
+- Emphasize Razorpay's differentiators (99.99% uptime, instant settlements, easy integration)
+
+7. CLOSING THE CONVERSATION:
+- When user indicates they're done (says "that's all", "thanks", "goodbye", etc.), use the end_call_summary tool
+- This will provide a verbal summary and save all collected information
+
+CONVERSATION STYLE:
+- Warm, professional, and consultative
+- Use the person's name occasionally
+- Ask open-ended questions
+- Be genuinely interested in helping
+- Keep responses concise (2-3 sentences max unless explaining complex topics)
+- Sound human and conversational, not robotic
+
+REMEMBER: You're building a relationship, not just collecting information. Make the prospect feel valued and understood."""
         )
-
-
-class LearnAgent(Agent):
-    """Agent for Learn mode - explains concepts to the user."""
+    
+    def _build_faq_context(self) -> str:
+        """Build a formatted FAQ context string."""
+        faq_lines = []
+        for item in self.faq_content['faq']:
+            faq_lines.append(f"Q: {item['question']}")
+            faq_lines.append(f"A: {item['answer']}")
+            faq_lines.append("")
+        return "\n".join(faq_lines)
     
     @function_tool
-    async def transfer_to_quiz_mode(self, context: RunContext) -> Agent:
-        """Transfer to Quiz mode when user wants to be quizzed."""
-        logger.info("Transferring from Learn to Quiz Mode")
-        # Switch voice to Alicia
-        self.session._tts = murf.TTS(
-            voice="en-US-Alicia",
-            style="Conversation",
-            tokenizer=tokenize.basic.SentenceTokenizer(min_sentence_len=2),
-            text_pacing=True
-        )
-        logger.info("Switched voice to Alicia (Quiz Mode)")
-        return QuizAgent()
+    async def collect_lead_info(
+        self,
+        name: Optional[str] = None,
+        company: Optional[str] = None,
+        email: Optional[str] = None,
+        role: Optional[str] = None,
+        use_case: Optional[str] = None,
+        team_size: Optional[str] = None,
+        timeline: Optional[str] = None
+    ):
+        """
+        Store lead information as it's collected during the conversation.
+        Call this tool whenever you learn a piece of information about the prospect.
+        
+        Args:
+            name: Prospect's full name
+            company: Company name
+            email: Email address
+            role: Job role/position
+            use_case: What they want to use Razorpay for
+            team_size: Size of their team (e.g., "1-10", "50+", "individual")
+            timeline: When they need the solution (e.g., "immediately", "next month", "exploring")
+        """
+        if name:
+            self.lead_info["name"] = name
+            logger.info(f"Collected name: {name}")
+        if company:
+            self.lead_info["company"] = company
+            logger.info(f"Collected company: {company}")
+        if email:
+            self.lead_info["email"] = email
+            logger.info(f"Collected email: {email}")
+        if role:
+            self.lead_info["role"] = role
+            logger.info(f"Collected role: {role}")
+        if use_case:
+            self.lead_info["use_case"] = use_case
+            logger.info(f"Collected use_case: {use_case}")
+        if team_size:
+            self.lead_info["team_size"] = team_size
+            logger.info(f"Collected team_size: {team_size}")
+        if timeline:
+            self.lead_info["timeline"] = timeline
+            logger.info(f"Collected timeline: {timeline}")
+        
+        return f"Information recorded successfully."
     
     @function_tool
-    async def transfer_to_teach_back_mode(self, context: RunContext) -> Agent:
-        """Transfer to Teach Back mode when user wants to explain concepts."""
-        logger.info("Transferring from Learn to Teach Back Mode")
-        # Switch voice to Ken
-        self.session._tts = murf.TTS(
-            voice="en-US-Ken",
-            style="Conversation",
-            tokenizer=tokenize.basic.SentenceTokenizer(min_sentence_len=2),
-            text_pacing=True
-        )
-        logger.info("Switched voice to Ken (Teach Back Mode)")
-        return TeachBackAgent()
-    
-    @function_tool
-    async def transfer_to_greeter(self, context: RunContext) -> Agent:
-        """Return to main menu."""
-        logger.info("Returning to Greeter from Learn Mode")
-        # Keep Matthew voice for Greeter
-        return GreeterAgent()
-    
-    def __init__(self):
-        super().__init__(
-            instructions="""You are Matthew, a patient and enthusiastic programming instructor in Coursera's Learn Mode.
+    async def end_call_summary(self, context: RunContext):
+        """
+        End the call and provide a summary. Use this when the prospect indicates they're done 
+        (says things like "that's all", "thank you", "goodbye", "I'm done", etc.)
+        """
+        # Build summary
+        name = self.lead_info.get("name", "Unknown")
+        company = self.lead_info.get("company", "Unknown company")
+        role = self.lead_info.get("role", "Unknown role")
+        use_case = self.lead_info.get("use_case", "Not specified")
+        timeline = self.lead_info.get("timeline", "Not specified")
+        team_size = self.lead_info.get("team_size", "Not specified")
+        email = self.lead_info.get("email", "Not provided")
+        
+        # Save to JSON
+        save_lead(self.lead_info)
+        
+        # Generate verbal summary
+        summary = f"""Perfect! Let me quickly summarize what we discussed today.
 
-FIRST MESSAGE (say immediately when you start):
-"Hi! I'm Matthew, your Learn Mode instructor. I'll help you understand programming concepts deeply. We cover topics like variables, loops, functions, conditionals, lists, and dictionaries.
+I spoke with {name} from {company}, who is a {role}. They're interested in using Razorpay for {use_case}. Their team size is {team_size}, and they're looking to implement this {timeline}.
 
-Which topic would you like me to explain? Just tell me what you're curious about!"
+I have your email as {email}, and I'll send you detailed information about Razorpay's solutions that match your needs. Our team will also reach out within 24 hours to schedule a detailed demo.
 
-YOUR ROLE:
-1. When user asks about a topic, explain it clearly and thoroughly using Gemini
-2. Break down complex ideas into simple parts
-3. Use real-world analogies and concrete examples
-4. Be enthusiastic and encouraging
-5. After explaining, ask if they want to switch modes or learn more
-
-EXPLAINING:
-- Start with the big picture, then dive into details
-- Give practical code examples
-- Use analogies that make sense
-- Check for understanding
-- Be conversational and friendly
-
-MODE SWITCHING:
-If they want to switch:
-- Quiz mode → use transfer_to_quiz_mode
-- Teach Back mode → use transfer_to_teach_back_mode
-- Main menu → use transfer_to_greeter
-
-After each explanation, suggest: "Want to learn another topic, test yourself with a quiz, or try teaching it back?"
-
-Use your knowledge to generate clear, accurate explanations on the fly."""
-        )
-
-
-class QuizAgent(Agent):
-    """Agent for Quiz mode - asks questions to test understanding."""
-    
-    @function_tool
-    async def transfer_to_learn_mode(self, context: RunContext) -> Agent:
-        """Transfer to Learn mode when user wants explanations."""
-        logger.info("Transferring from Quiz to Learn Mode")
-        # Switch voice to Matthew
-        self.session._tts = murf.TTS(
-            voice="en-US-Matthew",
-            style="Conversation",
-            tokenizer=tokenize.basic.SentenceTokenizer(min_sentence_len=2),
-            text_pacing=True
-        )
-        logger.info("Switched voice to Matthew (Learn Mode)")
-        return LearnAgent()
-    
-    @function_tool
-    async def transfer_to_teach_back_mode(self, context: RunContext) -> Agent:
-        """Transfer to Teach Back mode when user wants to explain."""
-        logger.info("Transferring from Quiz to Teach Back Mode")
-        # Switch voice to Ken
-        self.session._tts = murf.TTS(
-            voice="en-US-Ken",
-            style="Conversation",
-            tokenizer=tokenize.basic.SentenceTokenizer(min_sentence_len=2),
-            text_pacing=True
-        )
-        logger.info("Switched voice to Ken (Teach Back Mode)")
-        return TeachBackAgent()
-    
-    @function_tool
-    async def transfer_to_greeter(self, context: RunContext) -> Agent:
-        """Return to main menu."""
-        logger.info("Returning to Greeter from Quiz Mode")
-        # Switch voice to Matthew for Greeter
-        self.session._tts = murf.TTS(
-            voice="en-US-Matthew",
-            style="Conversation",
-            tokenizer=tokenize.basic.SentenceTokenizer(min_sentence_len=2),
-            text_pacing=True
-        )
-        logger.info("Switched voice to Matthew (Greeter)")
-        return GreeterAgent()
-    
-    def __init__(self):
-        super().__init__(
-            instructions="""You are Alicia, an encouraging and energetic quiz instructor for Coursera's Quiz Mode.
-
-FIRST MESSAGE (say immediately when you start):
-"Hey there! I'm Alicia, your Quiz Mode instructor! I love testing knowledge and helping you discover what you really understand. I can quiz you on variables, loops, functions, conditionals, lists, dictionaries, and more!
-
-What topic should we quiz today? Pick something you've been learning!"
-
-YOUR ROLE:
-1. When user picks a topic, generate 1-2 thoughtful questions about it using Gemini
-2. Listen carefully to their answer
-3. Give specific, encouraging feedback:
-   - If correct: Celebrate what they got right specifically
-   - If incomplete: Point out what's missing with hints
-   - If incorrect: Gently explain the right answer and why
-4. Ask if they want more questions or to switch modes
-
-QUIZ STYLE:
-- Make questions clear and focused
-- Test understanding, not memorization
-- Be encouraging and positive
-- Celebrate effort and progress
-- Make wrong answers into learning moments
-- Use follow-up questions to probe deeper
-
-MODE SWITCHING:
-- Learn mode → use transfer_to_learn_mode
-- Teach Back mode → use transfer_to_teach_back_mode
-- Main menu → use transfer_to_greeter
-
-After each question, ask: "Ready for another question, want to learn something new, or try teaching it back?"
-
-Generate questions dynamically using your knowledge - keep them relevant and at the right difficulty level!"""
-        )
-
-
-class TeachBackAgent(Agent):
-    """Agent for Teach Back mode - user explains concepts."""
-    
-    @function_tool
-    async def transfer_to_learn_mode(self, context: RunContext) -> Agent:
-        """Transfer to Learn mode when user needs explanation."""
-        logger.info("Transferring from Teach Back to Learn Mode")
-        # Switch voice to Matthew
-        self.session._tts = murf.TTS(
-            voice="en-US-Matthew",
-            style="Conversation",
-            tokenizer=tokenize.basic.SentenceTokenizer(min_sentence_len=2),
-            text_pacing=True
-        )
-        logger.info("Switched voice to Matthew (Learn Mode)")
-        return LearnAgent()
-    
-    @function_tool
-    async def transfer_to_quiz_mode(self, context: RunContext) -> Agent:
-        """Transfer to Quiz mode when user wants questions."""
-        logger.info("Transferring from Teach Back to Quiz Mode")
-        # Switch voice to Alicia
-        self.session._tts = murf.TTS(
-            voice="en-US-Alicia",
-            style="Conversation",
-            tokenizer=tokenize.basic.SentenceTokenizer(min_sentence_len=2),
-            text_pacing=True
-        )
-        logger.info("Switched voice to Alicia (Quiz Mode)")
-        return QuizAgent()
-    
-    @function_tool
-    async def transfer_to_greeter(self, context: RunContext) -> Agent:
-        """Return to main menu."""
-        logger.info("Returning to Greeter from Teach Back Mode")
-        # Switch voice to Matthew for Greeter
-        self.session._tts = murf.TTS(
-            voice="en-US-Matthew",
-            style="Conversation",
-            tokenizer=tokenize.basic.SentenceTokenizer(min_sentence_len=2),
-            text_pacing=True
-        )
-        logger.info("Switched voice to Matthew (Greeter)")
-        return GreeterAgent()
-    
-    def __init__(self):
-        super().__init__(
-            instructions="""You are Ken, a thoughtful mentor and active listener for Coursera's Teach Back Mode.
-
-FIRST MESSAGE (say immediately when you start):
-"Hello! I'm Ken, your Teach Back instructor. Teaching others is one of the best ways to truly master a subject. I'm here to listen carefully as you explain programming concepts to me.
-
-Pick any programming topic - variables, loops, functions, conditionals, lists, dictionaries, or anything else - and teach me as if I'm learning it for the first time. I'm all ears!"
-
-YOUR ROLE:
-1. Listen attentively as the user explains a concept
-2. After they finish, give constructive feedback using Gemini to evaluate:
-   - Specific praise for what they explained well
-   - Key points they covered correctly
-   - Anything important they might have missed (gently)
-   - Overall assessment and encouragement
-3. Offer to hear another explanation or switch modes
-
-FEEDBACK STYLE:
-- Start with genuine praise for specific things they did well
-- Mention 2-3 key points they got right
-- If something's missing, phrase it as: "One thing you could add is..."
-- Be encouraging and supportive, never harsh
-- Help them see teaching as practice, not a test
-- End on a positive note
-
-EVALUATING:
-Use Gemini to assess if their explanation covered:
-- The core concept clearly
-- Practical examples
-- When/why it's used
-- Clear and understandable language
-
-MODE SWITCHING:
-- Learn mode → use transfer_to_learn_mode
-- Quiz mode → use transfer_to_quiz_mode
-- Main menu → use transfer_to_greeter
-
-After feedback, ask: "Want to teach me another concept, or try a different learning mode?"
-
-Use your knowledge to give thoughtful, helpful feedback that builds confidence!"""
-        )
+Thank you so much for your time today, {name}! We're excited about the possibility of working with {company}. Have a great day!"""
+        
+        await self.session.say(summary)
+        
+        logger.info(f"Call ended. Lead summary generated for: {name}")
+        return "Call ended successfully. Lead saved."
 
 
 def prewarm(proc: JobProcess):
+    """Prewarm function to load FAQ content early."""
     proc.userdata["vad"] = silero.VAD.load()
+    # Preload FAQ content
+    proc.userdata["faq_content"] = load_faq_content()
+    logger.info("FAQ content preloaded successfully")
 
 
 async def entrypoint(ctx: JobContext):
@@ -381,12 +257,12 @@ async def entrypoint(ctx: JobContext):
         "room": ctx.room.name,
     }
 
-    # Set up session with voice switching
+    # Set up session with Murf Falcon TTS (Priya's voice - Alicia)
     session = AgentSession(
         stt=deepgram.STT(model="nova-3"),
         llm=google.LLM(model="gemini-2.5-flash"),
         tts=murf.TTS(
-            voice="en-US-Matthew", 
+            voice="en-US-Alicia",  # Using Alicia voice for Priya
             style="Conversation",
             tokenizer=tokenize.basic.SentenceTokenizer(min_sentence_len=2),
             text_pacing=True
@@ -415,14 +291,9 @@ async def entrypoint(ctx: JobContext):
 
     ctx.add_shutdown_callback(log_usage)
 
-    # Configure voice when agent changes
-    @session.on("agent_started")
-    def _on_agent_started(agent: Agent):
-        _configure_voice(session, agent)
-
-    # Start with greeter agent
+    # Start with SDR agent
     await session.start(
-        agent=GreeterAgent(),
+        agent=RazorpaySDRAgent(),
         room=ctx.room,
         room_input_options=RoomInputOptions(
             noise_cancellation=noise_cancellation.BVC(),
@@ -430,42 +301,6 @@ async def entrypoint(ctx: JobContext):
     )
 
     await ctx.connect()
-
-
-def _configure_voice(session: AgentSession, agent: Agent):
-    """Configure TTS voice based on agent type."""
-    if isinstance(agent, LearnAgent):
-        session._tts = murf.TTS(
-            voice="en-US-Matthew",
-            style="Conversation", 
-            tokenizer=tokenize.basic.SentenceTokenizer(min_sentence_len=2),
-            text_pacing=True
-        )
-        logger.info("Switched to Matthew (Learn Mode)")
-    elif isinstance(agent, QuizAgent):
-        session._tts = murf.TTS(
-            voice="en-US-Alicia",
-            style="Conversation",
-            tokenizer=tokenize.basic.SentenceTokenizer(min_sentence_len=2),
-            text_pacing=True
-        )
-        logger.info("Switched to Alicia (Quiz Mode)")
-    elif isinstance(agent, TeachBackAgent):
-        session._tts = murf.TTS(
-            voice="en-US-Ken",
-            style="Conversation",
-            tokenizer=tokenize.basic.SentenceTokenizer(min_sentence_len=2),
-            text_pacing=True
-        )
-        logger.info("Switched to Ken (Teach Back Mode)")
-    else:
-        session._tts = murf.TTS(
-            voice="en-US-Matthew",
-            style="Conversation",
-            tokenizer=tokenize.basic.SentenceTokenizer(min_sentence_len=2),
-            text_pacing=True
-        )
-        logger.info("Switched to Matthew (Greeter)")
 
 
 if __name__ == "__main__":

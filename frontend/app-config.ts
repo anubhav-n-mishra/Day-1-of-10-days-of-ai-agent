@@ -20,9 +20,9 @@ export interface AppConfig {
 }
 
 export const APP_CONFIG_DEFAULTS: AppConfig = {
-  companyName: 'HealthifyMe',
-  pageTitle: 'HealthifyMe AI Wellness Companion',
-  pageDescription: 'Your personal AI health coach - Daily check-ins powered by voice',
+  companyName: 'Razorpay',
+  pageTitle: 'Razorpay SDR - Lead Capture',
+  pageDescription: 'Connect with our AI Sales Representative for payment solutions',
 
   supportsChatInput: true,
   supportsVideoInput: false,
@@ -30,10 +30,10 @@ export const APP_CONFIG_DEFAULTS: AppConfig = {
   isPreConnectBufferEnabled: true,
 
   logo: '/ccd-logo.svg',
-  accent: '#1CAC78',
+  accent: '#3395FF',
   logoDark: '/lk-logo-dark.svg',
-  accentDark: '#159A68',
-  startButtonText: 'Start Your Check-In',
+  accentDark: '#3395FF',
+  startButtonText: 'Connect with Priya',
 
   // for LiveKit Cloud Sandbox
   sandboxId: undefined,

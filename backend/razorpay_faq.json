@@ -1,0 +1,138 @@
+{
+  "company": {
+    "name": "Razorpay",
+    "tagline": "India's Leading Payment Gateway and Banking Platform for Businesses",
+    "description": "Razorpay is a full-stack financial solutions company that enables businesses to accept, process, and disburse payments with its product suite. We enable businesses with an easy-to-integrate payment gateway, business banking, lending solutions, and much more.",
+    "founded": "2014",
+    "headquarters": "Bangalore, India",
+    "founders": "Harshil Mathur and Shashank Kumar"
+  },
+  "products": [
+    {
+      "name": "Payment Gateway",
+      "description": "Accept payments through 100+ payment modes including UPI, cards, netbanking, and wallets. Get instant settlements with industry-best success rates.",
+      "key_features": [
+        "100+ payment methods",
+        "Instant settlements",
+        "99.99% uptime",
+        "International payments support",
+        "Mobile SDKs for Android and iOS"
+      ]
+    },
+    {
+      "name": "RazorpayX (Business Banking)",
+      "description": "Complete business banking platform with current accounts, payroll, vendor payments, tax payments, and expense management.",
+      "key_features": [
+        "Zero balance current account",
+        "Automated payroll",
+        "Bulk vendor payouts",
+        "Corporate credit cards",
+        "Automated accounting integrations"
+      ]
+    },
+    {
+      "name": "Razorpay Capital",
+      "description": "Get instant business loans and credit lines based on your transaction data.",
+      "key_features": [
+        "Instant loans up to ₹1 crore",
+        "Minimal documentation",
+        "Flexible repayment",
+        "Quick disbursement"
+      ]
+    },
+    {
+      "name": "Payment Links",
+      "description": "Create and share payment links instantly without any coding. Perfect for freelancers and small businesses.",
+      "key_features": [
+        "No website needed",
+        "Share via WhatsApp, SMS, Email",
+        "Track payments in real-time",
+        "Customizable payment pages"
+      ]
+    }
+  ],
+  "pricing": {
+    "payment_gateway": {
+      "standard": "2% per transaction (domestic)",
+      "international": "3% per transaction",
+      "setup_fee": "Zero setup fees",
+      "free_tier": "No free tier, pay per transaction"
+    },
+    "razorpay_x": {
+      "account": "Zero balance current account",
+      "transaction_charges": "As per RBI guidelines",
+      "payout_charges": "Starts from ₹3 per payout"
+    },
+    "notes": "Volume-based discounts available for high-transaction businesses. Contact sales for enterprise pricing."
+  },
+  "faq": [
+    {
+      "question": "What does Razorpay do?",
+      "answer": "Razorpay is a complete payment and banking solution for businesses. We help you accept online payments, manage business banking, get instant credit, and handle all financial operations from one platform."
+    },
+    {
+      "question": "Who is Razorpay for?",
+      "answer": "Razorpay is built for all types of businesses - from freelancers and small businesses to large enterprises and startups. Whether you're an e-commerce store, SaaS company, educational institution, or any business that needs to collect payments, we've got you covered."
+    },
+    {
+      "question": "Do you have a free tier?",
+      "answer": "We don't have a traditional free tier, but there are zero setup fees and no annual maintenance charges. You only pay per transaction - 2% for domestic payments and 3% for international. This means you only pay when you earn."
+    },
+    {
+      "question": "What payment methods do you support?",
+      "answer": "We support 100+ payment methods including UPI (Google Pay, PhonePe, Paytm), all major credit and debit cards (Visa, Mastercard, Amex, RuPay), net banking from 50+ banks, popular wallets like Paytm, Mobikwik, and international payment methods."
+    },
+    {
+      "question": "How quickly do I get my money?",
+      "answer": "We offer instant settlements for eligible merchants. You can get your money in minutes. For standard merchants, settlements happen within T+2 to T+7 days depending on your business category and settlement cycle."
+    },
+    {
+      "question": "Is it difficult to integrate?",
+      "answer": "Not at all! We have easy integration options for everyone. If you have a website, our APIs can be integrated in 15 minutes. If you don't have a website, use Payment Links or Payment Pages - no coding required. We also have plugins for Shopify, WooCommerce, Magento, and other platforms."
+    },
+    {
+      "question": "What is RazorpayX?",
+      "answer": "RazorpayX is our business banking platform. It gives you a current account, automated payroll, vendor payments, corporate cards, and complete expense management - all integrated with your payment gateway. Think of it as your complete financial operations platform."
+    },
+    {
+      "question": "Can I get business loans?",
+      "answer": "Yes! Through Razorpay Capital, you can get instant business loans up to ₹1 crore based on your transaction history. It's collateral-free with minimal documentation and quick disbursement."
+    },
+    {
+      "question": "Do you support international payments?",
+      "answer": "Absolutely! We support international card payments and popular international payment methods. You can accept payments from customers worldwide at 3% per transaction."
+    },
+    {
+      "question": "What about security and compliance?",
+      "answer": "We are PCI DSS Level 1 compliant, which is the highest security standard in the payments industry. We're also certified by Visa and Mastercard. Your customer data is encrypted and we follow RBI guidelines strictly."
+    },
+    {
+      "question": "How is your customer support?",
+      "answer": "We provide 24/7 customer support via email, phone, and chat. Our average response time is under 1 hour, and we have dedicated account managers for enterprise clients."
+    },
+    {
+      "question": "What's your pricing for high-volume businesses?",
+      "answer": "We offer custom pricing for businesses with high transaction volumes. Our enterprise plans include volume discounts, dedicated support, custom integrations, and priority settlements. Contact our sales team for a personalized quote."
+    }
+  ],
+  "use_cases": [
+    "E-commerce stores",
+    "SaaS and subscription businesses",
+    "Educational institutions",
+    "Healthcare and telemedicine",
+    "Food delivery and restaurants",
+    "Travel and hospitality",
+    "Freelancers and consultants",
+    "NGOs and crowdfunding",
+    "Marketplaces",
+    "Gaming and entertainment"
+  ],
+  "differentiators": [
+    "Highest payment success rates in India (99.99% uptime)",
+    "Instant settlements for eligible merchants",
+    "Complete financial operations platform (payments + banking + lending)",
+    "Easy integration with no-code options",
+    "Trusted by 10 million+ businesses",
+    "Built in India, for India"
+  ]
+}
