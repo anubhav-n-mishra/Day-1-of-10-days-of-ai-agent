@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { CreditCard, Zap, Shield, TrendingUp, Sparkles, Phone } from 'lucide-react';
 
-function RazorpayIcon() {
+function PayFlowIcon() {
   return (
     <div className="relative flex items-center justify-center">
       <div className="absolute w-32 h-32 bg-[#3395FF] opacity-10 rounded-full animate-pulse"></div>
@@ -33,7 +33,7 @@ export const WelcomeView = ({
         <div className="absolute top-1/2 right-1/4 w-16 h-16 bg-[#00D632] opacity-10 rounded-full blur-xl"></div>
 
         <div className="mb-10 relative z-10">
-          <RazorpayIcon />
+          <PayFlowIcon />
         </div>
 
         {/* Badge */}
@@ -45,13 +45,13 @@ export const WelcomeView = ({
         </div>
 
         <h1 className="text-7xl font-black text-[#1F1F1F] mb-4 tracking-tight leading-tight">
-          Razorpay SDR
+          PayFlow SDR
         </h1>
         <p className="text-[#3395FF] max-w-md text-2xl mb-3 font-bold">
-          Meet Priya, Your Virtual Sales Representative
+          Meet Radha, Your Virtual Sales Representative
         </p>
         <p className="text-[#666666] max-w-2xl text-lg mb-10 leading-relaxed">
-          Connect instantly with our AI sales representative to learn about Razorpay's payment solutions, 
+          Connect instantly with our AI sales representative to learn about PayFlow's payment solutions, 
           business banking, and more. Get answers to your questions and discover how we can help your business grow.
         </p>
 
@@ -100,13 +100,13 @@ export const WelcomeView = ({
         {/* Trust Badge */}
         <div className="mt-8 flex items-center gap-2 text-sm text-[#666666]">
           <Shield className="w-5 h-5 text-[#00D632]" />
-          <span>Trusted by 10+ million businesses across India</span>
+          <span>Trusted by 5+ million businesses worldwide</span>
         </div>
 
         {/* Pro Tip */}
         <div className="mt-8 bg-white/80 backdrop-blur-sm p-6 rounded-xl max-w-md border-2 border-[#3395FF]/20 shadow-lg">
           <p className="text-[#333333] text-sm leading-relaxed">
-            <span className="font-bold text-[#3395FF]">💡 Pro tip:</span> Priya will ask you a few questions 
+            <span className="font-bold text-[#3395FF]">💡 Pro tip:</span> Radha will ask you a few questions 
             to understand your business needs and recommend the best solutions for you.
           </p>
         </div>

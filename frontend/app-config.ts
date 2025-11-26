@@ -20,8 +20,8 @@ export interface AppConfig {
 }
 
 export const APP_CONFIG_DEFAULTS: AppConfig = {
-  companyName: 'Razorpay',
-  pageTitle: 'Razorpay SDR - Lead Capture',
+  companyName: 'PayFlow',
+  pageTitle: 'PayFlow SDR - Lead Capture',
   pageDescription: 'Connect with our AI Sales Representative for payment solutions',
 
   supportsChatInput: true,
@@ -33,7 +33,7 @@ export const APP_CONFIG_DEFAULTS: AppConfig = {
   accent: '#3395FF',
   logoDark: '/lk-logo-dark.svg',
   accentDark: '#3395FF',
-  startButtonText: 'Connect with Priya',
+  startButtonText: 'Connect with Radha',
 
   // for LiveKit Cloud Sandbox
   sandboxId: undefined,

@@ -3,7 +3,7 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import type { AppConfig } from '@/app-config';
-import { BookOpen, Brain, MessageSquare, Mic, MicOff, Volume2 } from 'lucide-react';
+import { CreditCard, Mic, MicOff, Volume2, Phone, TrendingUp } from 'lucide-react';
 import { useVoiceAssistant, AudioTrack, useTrackToggle } from '@livekit/components-react';
 import { Track } from 'livekit-client';
 import { cn } from '@/lib/utils';
@@ -22,7 +22,7 @@ export const SessionView = ({
   const isAgentListening = agentState === 'listening';
   
   return (
-    <section className="relative z-10 h-full w-full bg-linear-to-br from-[#EBF5FF] to-white overflow-hidden" {...props}>
+    <section className="relative z-10 h-full w-full bg-gradient-to-br from-[#F0F7FF] to-white overflow-hidden" {...props}>
       {/* Hidden audio element for agent voice */}
       {agentAudioTrack && (
         <AudioTrack trackRef={agentAudioTrack} />
@@ -30,7 +30,7 @@ export const SessionView = ({
       
       <div className="min-h-screen flex flex-col items-center justify-center p-8">
         
-        {/* Learning Mode Icon with Audio Visualization */}
+        {/* Razorpay SDR Icon with Audio Visualization */}
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
@@ -39,110 +39,148 @@ export const SessionView = ({
         >
           <div className="relative">
             <div className={cn(
-              "absolute w-32 h-32 bg-[#0056D2] opacity-10 rounded-full transition-all",
+              "absolute w-32 h-32 bg-[#3395FF] opacity-10 rounded-full transition-all",
               isAgentSpeaking && "animate-pulse scale-110"
             )}></div>
-            <div className="relative bg-linear-to-br from-[#0056D2] to-[#004099] p-8 rounded-full shadow-2xl">
+            <div className="relative bg-gradient-to-br from-[#3395FF] to-[#0066CC] p-8 rounded-full shadow-2xl">
               {isAgentSpeaking ? (
                 <Volume2 className="w-20 h-20 text-white animate-pulse" strokeWidth={2.5} />
               ) : (
-                <Brain className="w-20 h-20 text-white" strokeWidth={2.5} />
+                <Phone className="w-20 h-20 text-white" strokeWidth={2.5} />
               )}
             </div>
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-              className="w-8 h-8 text-[#FFB800] fill-[#FFB800] absolute -top-2 -right-2"
-            >
-              ✨
-            </motion.div>
           </div>
         </motion.div>
-
+        
+        {/* Agent Status */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center space-y-6 max-w-3xl"
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.2 }}
+          className="mb-6"
         >
-          <h2 className="text-5xl font-black text-[#1F1F1F] tracking-tight">
-            Active Learning Session
+          <h2 className="text-5xl font-black text-[#1F1F1F] mb-3 text-center">
+            {isAgentSpeaking ? "Radha is speaking..." : isAgentListening ? "Listening to you..." : "Connected with Radha"}
           </h2>
-          <p className="text-[#0056D2] text-xl font-bold">
-            Choose your mode: Learn, Quiz, or Teach Back
+          <p className="text-[#3395FF] text-xl text-center font-semibold">
+            {isAgentSpeaking ? "Sharing information about PayFlow" : isAgentListening ? "Your turn to speak" : "Your PayFlow SDR"}
           </p>
+        </motion.div>
 
-          {/* Three Learning Modes */}
-          <div className="grid grid-cols-3 gap-6 mt-10 mb-10">
-            <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-[#0056D2]/30 cursor-pointer hover:scale-105">
-              <BookOpen className="w-12 h-12 text-[#0056D2] mx-auto mb-4" strokeWidth={2.5} />
-              <p className="text-lg font-bold text-gray-800 mb-2">Learn</p>
-              <p className="text-sm text-gray-500 mb-4">Concepts explained</p>
-              <div className="h-1.5 bg-[#0056D2]/20 rounded-full">
-                <div className="h-1.5 bg-[#0056D2] rounded-full w-0"></div>
-              </div>
-            </div>
-            <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-[#0056D2]/30 cursor-pointer hover:scale-105">
-              <MessageSquare className="w-12 h-12 text-[#0056D2] mx-auto mb-4" strokeWidth={2.5} />
-              <p className="text-lg font-bold text-gray-800 mb-2">Quiz</p>
-              <p className="text-sm text-gray-500 mb-4">Test knowledge</p>
-              <div className="h-1.5 bg-[#0056D2]/20 rounded-full">
-                <div className="h-1.5 bg-[#0056D2] rounded-full w-0"></div>
-              </div>
-            </div>
-            <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border-2 border-transparent hover:border-[#0056D2]/30 cursor-pointer hover:scale-105">
-              <Brain className="w-12 h-12 text-[#0056D2] mx-auto mb-4" strokeWidth={2.5} />
-              <p className="text-lg font-bold text-gray-800 mb-2">Teach</p>
-              <p className="text-sm text-gray-500 mb-4">Explain back</p>
-              <div className="h-1.5 bg-[#0056D2]/20 rounded-full">
-                <div className="h-1.5 bg-[#0056D2] rounded-full w-0"></div>
-              </div>
-            </div>
+        {/* Status Indicator */}
+        <motion.div
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ delay: 0.3, type: "spring" }}
+          className="mb-8 flex items-center gap-3"
+        >
+          <div className={cn(
+            "w-3 h-3 rounded-full transition-all",
+            isAgentSpeaking ? "bg-[#3395FF] animate-pulse scale-125" : 
+            isAgentListening ? "bg-[#00D632] animate-pulse" : 
+            "bg-gray-400"
+          )}></div>
+          <span className="text-sm font-medium text-gray-600">
+            {isAgentSpeaking ? "Agent Speaking" : isAgentListening ? "You're Speaking" : "Ready"}
+          </span>
+        </motion.div>
+
+        {/* Feature Cards */}
+        <motion.div
+          initial={{ y: 30, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.4 }}
+          className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 w-full max-w-4xl"
+        >
+          <div className="bg-white/80 backdrop-blur-sm p-8 rounded-2xl shadow-lg border-2 border-[#3395FF]/10">
+            <CreditCard className="w-10 h-10 text-[#3395FF] mb-3" />
+            <h3 className="text-lg font-bold text-[#1F1F1F] mb-2">Ask About Products</h3>
+            <p className="text-sm text-gray-600">
+              Payment Gateway, Business Banking, Capital & more
+            </p>
           </div>
 
-          {/* Microphone Button with Clear States */}
-          <div className="flex flex-col items-center gap-5 mt-12">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => toggleMic()}
-              className={cn(
-                "p-10 rounded-full shadow-2xl transition-all border-0 relative",
-                micEnabled 
-                  ? "bg-linear-to-br from-[#0056D2] to-[#004099] hover:shadow-[0_15px_50px_rgba(0,86,210,0.5)]"
-                  : "bg-gray-400 hover:shadow-[0_15px_50px_rgba(0,0,0,0.3)] hover:bg-gray-500"
-              )}
-            >
-              {micEnabled ? (
-                <Mic className="w-14 h-14 text-white" strokeWidth={2.5} />
-              ) : (
-                <MicOff className="w-14 h-14 text-white" strokeWidth={2.5} />
-              )}
-              {isAgentListening && (
-                <motion.div
-                  animate={{ scale: [1, 1.2, 1] }}
-                  transition={{ duration: 1.5, repeat: Infinity }}
-                  className="absolute inset-0 rounded-full border-4 border-[#FFB800] opacity-50"
-                />
-              )}
-            </motion.button>
-            <div className="text-center">
-              <p className="text-lg font-bold text-gray-800">
-                {micEnabled ? (isAgentListening ? '🎤 Listening...' : '✓ Microphone Active') : '🔇 Click to Start'}
-              </p>
-              <p className="text-base text-gray-600 mt-2">
-                {isAgentSpeaking ? '🔊 AI Coach is speaking...' : micEnabled ? 'Say "learn", "quiz", or "teach back"' : 'Activate your microphone to begin'}
-              </p>
-            </div>
+          <div className="bg-white/80 backdrop-blur-sm p-8 rounded-2xl shadow-lg border-2 border-[#3395FF]/10">
+            <TrendingUp className="w-10 h-10 text-[#3395FF] mb-3" />
+            <h3 className="text-lg font-bold text-[#1F1F1F] mb-2">Share Your Needs</h3>
+            <p className="text-sm text-gray-600">
+              Tell Priya about your business requirements
+            </p>
           </div>
 
-          {/* Mode Switching Hint */}
-          <div className="mt-10 p-6 bg-white rounded-2xl shadow-lg border-2 border-[#0056D2]/20">
-            <p className="text-base text-gray-700 leading-relaxed">
-              <span className="font-bold text-[#0056D2] text-lg">Pro Tip:</span> You can switch between modes anytime by saying "switch to learn mode" or "let's do a quiz"
+          <div className="bg-white/80 backdrop-blur-sm p-8 rounded-2xl shadow-lg border-2 border-[#3395FF]/10">
+            <Phone className="w-10 h-10 text-[#3395FF] mb-3" />
+            <h3 className="text-lg font-bold text-[#1F1F1F] mb-2">Get Personalized Help</h3>
+            <p className="text-sm text-gray-600">
+              Receive tailored solutions for your business
             </p>
           </div>
         </motion.div>
 
+        {/* Microphone Control */}
+        <motion.div
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ delay: 0.5, type: "spring", stiffness: 200 }}
+        >
+          <button
+            onClick={toggleMic}
+            className={cn(
+              "relative group transition-all duration-300",
+              micEnabled 
+                ? "bg-gradient-to-r from-[#3395FF] to-[#0066CC] hover:shadow-[0_20px_50px_rgba(51,149,255,0.5)]" 
+                : "bg-gray-400 hover:bg-gray-500"
+            )}
+            style={{
+              width: '80px',
+              height: '80px',
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: micEnabled ? '0 10px 40px rgba(51, 149, 255, 0.4)' : '0 10px 30px rgba(0, 0, 0, 0.2)'
+            }}
+          >
+            {micEnabled ? (
+              <Mic className="w-10 h-10 text-white" strokeWidth={2.5} />
+            ) : (
+              <MicOff className="w-10 h-10 text-white" strokeWidth={2.5} />
+            )}
+            
+            {/* Pulse effect when listening */}
+            {micEnabled && isAgentListening && (
+              <motion.div
+                className="absolute inset-0 rounded-full border-4 border-[#00D632]"
+                initial={{ scale: 1, opacity: 0.8 }}
+                animate={{ scale: 1.5, opacity: 0 }}
+                transition={{ duration: 1.5, repeat: Infinity }}
+              />
+            )}
+          </button>
+        </motion.div>
+
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.6 }}
+          className="mt-6 text-gray-600 text-center max-w-md"
+        >
+          {micEnabled 
+            ? "Microphone active - Speak naturally with Radha" 
+            : "Click the microphone to start talking"}
+        </motion.p>
+
+        {/* Pro Tip */}
+        <motion.div
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.7 }}
+          className="mt-12 bg-white/80 backdrop-blur-sm p-6 rounded-xl max-w-2xl border-2 border-[#3395FF]/20 shadow-lg"
+        >
+          <p className="text-sm text-gray-700 leading-relaxed text-center">
+            <span className="font-bold text-[#3395FF]">💡 Sample Questions:</span> "What does PayFlow do?" • "Do you have a free tier?" • "How quickly do I get my money?" • "Tell me about PayFlowX" • "Can I get business loans?"
+          </p>
+        </motion.div>
       </div>
     </section>
   );

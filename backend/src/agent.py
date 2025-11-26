@@ -30,8 +30,8 @@ logger = logging.getLogger("agent")
 
 load_dotenv(".env.local")
 
-# Load Razorpay FAQ content
-FAQ_PATH = Path(__file__).parent.parent / "razorpay_faq.json"
+# Load PayFlow FAQ content
+FAQ_PATH = Path(__file__).parent.parent / "payflow_faq.json"
 LEADS_PATH = Path(__file__).parent.parent / "leads.json"
 
 def load_faq_content():
@@ -62,8 +62,8 @@ def save_lead(lead_data: Dict):
         logger.error(f"Error saving lead: {e}")
         return False
 
-class RazorpaySDRAgent(Agent):
-    """SDR Agent for Razorpay that answers questions and collects lead information."""
+class PayFlowSDRAgent(Agent):
+    """SDR Agent for PayFlow that answers questions and collects lead information."""
     
     def __init__(self):
         # Load FAQ content
@@ -84,7 +84,7 @@ class RazorpaySDRAgent(Agent):
         faq_text = self._build_faq_context()
         
         super().__init__(
-            instructions=f"""You are Priya, a friendly and knowledgeable Sales Development Representative (SDR) for Razorpay, India's leading payment gateway and banking platform.
+            instructions=f"""You are Radha, a friendly and knowledgeable Sales Development Representative (SDR) for PayFlow, a modern payment gateway and business banking platform.
 
 COMPANY INFORMATION:
 {json.dumps(self.faq_content['company'], indent=2)}
@@ -101,7 +101,7 @@ FAQ DATABASE:
 YOUR ROLE AS AN SDR:
 
 1. GREETING (First Interaction):
-"Hello! I'm Priya from Razorpay. Thank you for connecting with us today! Before we dive in, I'd love to learn more about you and your business. May I know your name?"
+"Hello! I'm Radha from PayFlow. Thank you for connecting with us today! Before we dive in, I'd love to learn more about you and your business. May I know your name?"
 
 2. DISCOVERY & NEEDS ASSESSMENT:
 - Once you have their name, ask: "Great to meet you, [Name]! What company are you with, and what brought you to Razorpay today?"
@@ -121,14 +121,14 @@ Throughout the conversation, naturally collect these details:
 - Company name (ask early in discovery)
 - Email address (say: "I'd love to send you some resources. What's the best email to reach you?")
 - Role/Position (ask: "What's your role at [Company]?")
-- Use case (understand from their needs: "What would you primarily use Razorpay for?")
+- Use case (understand from their needs: "What would you primarily use PayFlow for?")
 - Team size (ask: "How large is your team?")
 - Timeline (ask: "When are you looking to implement a payment solution - immediately, in the next few months, or just exploring?")
 
 Use the collect_lead_info tool to store each piece of information as you collect it.
 
 5. CONSULTATIVE SELLING:
-- Match their needs to relevant Razorpay products
+- Match their needs to relevant PayFlow products
 - Highlight benefits specific to their use case
 - Mention success stories with similar businesses
 - Be enthusiastic but not pushy
@@ -136,7 +136,7 @@ Use the collect_lead_info tool to store each piece of information as you collect
 6. HANDLING OBJECTIONS:
 - Listen to concerns
 - Address with FAQ information
-- Emphasize Razorpay's differentiators (99.99% uptime, instant settlements, easy integration)
+- Emphasize PayFlow's differentiators (99.99% uptime, instant settlements, easy integration)
 
 7. CLOSING THE CONVERSATION:
 - When user indicates they're done (says "that's all", "thanks", "goodbye", etc.), use the end_call_summary tool
@@ -182,7 +182,7 @@ REMEMBER: You're building a relationship, not just collecting information. Make 
             company: Company name
             email: Email address
             role: Job role/position
-            use_case: What they want to use Razorpay for
+            use_case: What they want to use PayFlow for
             team_size: Size of their team (e.g., "1-10", "50+", "individual")
             timeline: When they need the solution (e.g., "immediately", "next month", "exploring")
         """
@@ -231,9 +231,9 @@ REMEMBER: You're building a relationship, not just collecting information. Make 
         # Generate verbal summary
         summary = f"""Perfect! Let me quickly summarize what we discussed today.
 
-I spoke with {name} from {company}, who is a {role}. They're interested in using Razorpay for {use_case}. Their team size is {team_size}, and they're looking to implement this {timeline}.
+I spoke with {name} from {company}, who is a {role}. They're interested in using PayFlow for {use_case}. Their team size is {team_size}, and they're looking to implement this {timeline}.
 
-I have your email as {email}, and I'll send you detailed information about Razorpay's solutions that match your needs. Our team will also reach out within 24 hours to schedule a detailed demo.
+I have your email as {email}, and I'll send you detailed information about PayFlow's solutions that match your needs. Our team will also reach out within 24 hours to schedule a detailed demo.
 
 Thank you so much for your time today, {name}! We're excited about the possibility of working with {company}. Have a great day!"""
         
@@ -293,7 +293,7 @@ async def entrypoint(ctx: JobContext):
 
     # Start with SDR agent
     await session.start(
-        agent=RazorpaySDRAgent(),
+        agent=PayFlowSDRAgent(),
         room=ctx.room,
         room_input_options=RoomInputOptions(
             noise_cancellation=noise_cancellation.BVC(),
