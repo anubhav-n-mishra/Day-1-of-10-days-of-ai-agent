@@ -3,7 +3,7 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import type { AppConfig } from '@/app-config';
-import { CreditCard, Mic, MicOff, Volume2, Phone, TrendingUp } from 'lucide-react';
+import { Shield, Mic, MicOff, Volume2, Phone, AlertTriangle } from 'lucide-react';
 import { useVoiceAssistant, AudioTrack, useTrackToggle } from '@livekit/components-react';
 import { Track } from 'livekit-client';
 import { cn } from '@/lib/utils';
@@ -22,7 +22,7 @@ export const SessionView = ({
   const isAgentListening = agentState === 'listening';
   
   return (
-    <section className="relative z-10 h-full w-full bg-gradient-to-br from-[#F0F7FF] to-white overflow-hidden" {...props}>
+    <section className="relative z-10 h-full w-full bg-gradient-to-br from-[#FFF5F7] to-white overflow-hidden" {...props}>
       {/* Hidden audio element for agent voice */}
       {agentAudioTrack && (
         <AudioTrack trackRef={agentAudioTrack} />
@@ -39,14 +39,14 @@ export const SessionView = ({
         >
           <div className="relative">
             <div className={cn(
-              "absolute w-32 h-32 bg-[#3395FF] opacity-10 rounded-full transition-all",
+              "absolute w-32 h-32 bg-[#9D2235] opacity-10 rounded-full transition-all",
               isAgentSpeaking && "animate-pulse scale-110"
             )}></div>
-            <div className="relative bg-gradient-to-br from-[#3395FF] to-[#0066CC] p-8 rounded-full shadow-2xl">
+            <div className="relative bg-gradient-to-br from-[#9D2235] to-[#741A28] p-8 rounded-full shadow-2xl">
               {isAgentSpeaking ? (
                 <Volume2 className="w-20 h-20 text-white animate-pulse" strokeWidth={2.5} />
               ) : (
-                <Phone className="w-20 h-20 text-white" strokeWidth={2.5} />
+                <Shield className="w-20 h-20 text-white" strokeWidth={2.5} />
               )}
             </div>
           </div>
@@ -60,10 +60,10 @@ export const SessionView = ({
           className="mb-6"
         >
           <h2 className="text-5xl font-black text-[#1F1F1F] mb-3 text-center">
-            {isAgentSpeaking ? "Radha is speaking..." : isAgentListening ? "Listening to you..." : "Connected with Radha"}
+            {isAgentSpeaking ? "Aarav is speaking..." : isAgentListening ? "Listening to you..." : "Connected with Aarav"}
           </h2>
-          <p className="text-[#3395FF] text-xl text-center font-semibold">
-            {isAgentSpeaking ? "Sharing information about PayFlow" : isAgentListening ? "Your turn to speak" : "Your PayFlow SDR"}
+          <p className="text-[#9D2235] text-xl text-center font-semibold">
+            {isAgentSpeaking ? "Verifying your transaction" : isAgentListening ? "Your turn to speak" : "IDFC Bank Fraud Prevention"}
           </p>
         </motion.div>
 
@@ -76,7 +76,7 @@ export const SessionView = ({
         >
           <div className={cn(
             "w-3 h-3 rounded-full transition-all",
-            isAgentSpeaking ? "bg-[#3395FF] animate-pulse scale-125" : 
+            isAgentSpeaking ? "bg-[#9D2235] animate-pulse scale-125" : 
             isAgentListening ? "bg-[#00D632] animate-pulse" : 
             "bg-gray-400"
           )}></div>
@@ -92,27 +92,27 @@ export const SessionView = ({
           transition={{ delay: 0.4 }}
           className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 w-full max-w-4xl"
         >
-          <div className="bg-white/80 backdrop-blur-sm p-8 rounded-2xl shadow-lg border-2 border-[#3395FF]/10">
-            <CreditCard className="w-10 h-10 text-[#3395FF] mb-3" />
-            <h3 className="text-lg font-bold text-[#1F1F1F] mb-2">Ask About Products</h3>
+          <div className="bg-white/80 backdrop-blur-sm p-8 rounded-2xl shadow-lg border-2 border-[#9D2235]/10">
+            <Shield className="w-10 h-10 text-[#9D2235] mb-3" />
+            <h3 className="text-lg font-bold text-[#1F1F1F] mb-2">Verify Transactions</h3>
             <p className="text-sm text-gray-600">
-              Payment Gateway, Business Banking, Capital & more
+              Confirm or decline suspicious transactions instantly
             </p>
           </div>
 
-          <div className="bg-white/80 backdrop-blur-sm p-8 rounded-2xl shadow-lg border-2 border-[#3395FF]/10">
-            <TrendingUp className="w-10 h-10 text-[#3395FF] mb-3" />
-            <h3 className="text-lg font-bold text-[#1F1F1F] mb-2">Share Your Needs</h3>
+          <div className="bg-white/80 backdrop-blur-sm p-8 rounded-2xl shadow-lg border-2 border-[#9D2235]/10">
+            <AlertTriangle className="w-10 h-10 text-[#9D2235] mb-3" />
+            <h3 className="text-lg font-bold text-[#1F1F1F] mb-2">Real-Time Alerts</h3>
             <p className="text-sm text-gray-600">
-              Tell Priya about your business requirements
+              Get notified immediately about unusual activity
             </p>
           </div>
 
-          <div className="bg-white/80 backdrop-blur-sm p-8 rounded-2xl shadow-lg border-2 border-[#3395FF]/10">
-            <Phone className="w-10 h-10 text-[#3395FF] mb-3" />
-            <h3 className="text-lg font-bold text-[#1F1F1F] mb-2">Get Personalized Help</h3>
+          <div className="bg-white/80 backdrop-blur-sm p-8 rounded-2xl shadow-lg border-2 border-[#9D2235]/10">
+            <Phone className="w-10 h-10 text-[#9D2235] mb-3" />
+            <h3 className="text-lg font-bold text-[#1F1F1F] mb-2">Block Instantly</h3>
             <p className="text-sm text-gray-600">
-              Receive tailored solutions for your business
+              Stop fraudulent transactions and protect your card
             </p>
           </div>
         </motion.div>
@@ -124,11 +124,11 @@ export const SessionView = ({
           transition={{ delay: 0.5, type: "spring", stiffness: 200 }}
         >
           <button
-            onClick={toggleMic}
+            onClick={() => toggleMic()}
             className={cn(
               "relative group transition-all duration-300",
               micEnabled 
-                ? "bg-gradient-to-r from-[#3395FF] to-[#0066CC] hover:shadow-[0_20px_50px_rgba(51,149,255,0.5)]" 
+                ? "bg-gradient-to-r from-[#9D2235] to-[#741A28] hover:shadow-[0_20px_50px_rgba(157,34,53,0.5)]" 
                 : "bg-gray-400 hover:bg-gray-500"
             )}
             style={{
@@ -138,7 +138,7 @@ export const SessionView = ({
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              boxShadow: micEnabled ? '0 10px 40px rgba(51, 149, 255, 0.4)' : '0 10px 30px rgba(0, 0, 0, 0.2)'
+              boxShadow: micEnabled ? '0 10px 40px rgba(157, 34, 53, 0.4)' : '0 10px 30px rgba(0, 0, 0, 0.2)'
             }}
           >
             {micEnabled ? (
@@ -166,7 +166,7 @@ export const SessionView = ({
           className="mt-6 text-gray-600 text-center max-w-md"
         >
           {micEnabled 
-            ? "Microphone active - Speak naturally with Radha" 
+            ? "Microphone active - Speak naturally with Aarav" 
             : "Click the microphone to start talking"}
         </motion.p>
 
@@ -175,10 +175,10 @@ export const SessionView = ({
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.7 }}
-          className="mt-12 bg-white/80 backdrop-blur-sm p-6 rounded-xl max-w-2xl border-2 border-[#3395FF]/20 shadow-lg"
+          className="mt-12 bg-white/80 backdrop-blur-sm p-6 rounded-xl max-w-2xl border-2 border-[#9D2235]/20 shadow-lg"
         >
           <p className="text-sm text-gray-700 leading-relaxed text-center">
-            <span className="font-bold text-[#3395FF]">💡 Sample Questions:</span> "What does PayFlow do?" • "Do you have a free tier?" • "How quickly do I get my money?" • "Tell me about PayFlowX" • "Can I get business loans?"
+            <span className="font-bold text-[#9D2235]">💡 Sample Questions:</span> "I need to verify a transaction" • "Can you check if my card is safe?" • "Is this charge legitimate?" • "I want to report suspicious activity" • "Can you block my card?"
           </p>
         </motion.div>
       </div>

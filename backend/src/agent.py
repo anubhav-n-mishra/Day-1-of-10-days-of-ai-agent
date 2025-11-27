@@ -127,8 +127,8 @@ IMPORTANT RULES:
 
 FIRST MESSAGE: "Hello! I'm Aarav from IDFC Bank's Fraud Prevention Team. I'm calling about a potentially suspicious transaction on your account. May I have your name please?"
 """,
-            voice=murf.VoiceSettings(
-                voice_id="en-IN-ravi",
+            voice=murf.Voice(
+                voice="en-IN-ravi",
                 model="murf-falcon"
             ),
             llm=google.LLM(model="gemini-2.0-flash-exp"),
