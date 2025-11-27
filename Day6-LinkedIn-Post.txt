@@ -1,0 +1,15 @@
+🚨 Excited to share my Day 6 project for #TenDaysOfVoiceAgents!
+
+I built an IDFC Bank Fraud Alert Voice Agent using LiveKit Agents, Gemini LLM, Murf TTS, Deepgram STT, and SQLite. The agent verifies suspicious transactions, asks security questions, and blocks cards if fraud is detected—all in real-time voice!
+
+Tech highlights:
+- Python backend with LiveKit Agents 1.3.2
+- Gemini LLM (Google API)
+- Murf TTS (en-US-matthew)
+- Deepgram STT (nova-3)
+- SQLite fraud_cases database
+- Next.js 15 frontend with IDFC Bank theme
+
+Try it: Say your name, answer the security question, and confirm or deny the transaction. The agent handles everything securely and conversationally!
+
+#AI #VoiceAgents #FraudDetection #IDFCBank #LiveKit #Gemini #Murf #Deepgram #Nextjs #Python #TenDaysChallenge
