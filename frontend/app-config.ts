@@ -20,9 +20,9 @@ export interface AppConfig {
 }
 
 export const APP_CONFIG_DEFAULTS: AppConfig = {
-  companyName: 'PayFlow',
-  pageTitle: 'PayFlow SDR - Lead Capture',
-  pageDescription: 'Connect with our AI Sales Representative for payment solutions',
+  companyName: 'IDFC Bank',
+  pageTitle: 'IDFC Bank - Fraud Alert System',
+  pageDescription: 'Secure fraud detection and verification system',
 
   supportsChatInput: true,
   supportsVideoInput: false,
@@ -30,10 +30,10 @@ export const APP_CONFIG_DEFAULTS: AppConfig = {
   isPreConnectBufferEnabled: true,
 
   logo: '/ccd-logo.svg',
-  accent: '#3395FF',
+  accent: '#9D2235',
   logoDark: '/lk-logo-dark.svg',
-  accentDark: '#3395FF',
-  startButtonText: 'Connect with Radha',
+  accentDark: '#9D2235',
+  startButtonText: 'Connect with Aarav',
 
   // for LiveKit Cloud Sandbox
   sandboxId: undefined,
