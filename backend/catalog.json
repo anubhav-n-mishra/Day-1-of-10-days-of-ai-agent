@@ -1,0 +1,93 @@
+{
+  "store_name": "Zepto Express",
+  "categories": [
+    {
+      "name": "Fruits & Vegetables",
+      "items": [
+        {"id": "fv001", "name": "Banana", "price": 40, "unit": "dozen", "tags": ["fresh", "vegan"]},
+        {"id": "fv002", "name": "Apple", "price": 180, "unit": "kg", "tags": ["fresh", "vegan"]},
+        {"id": "fv003", "name": "Tomato", "price": 30, "unit": "kg", "tags": ["fresh", "vegan"]},
+        {"id": "fv004", "name": "Onion", "price": 35, "unit": "kg", "tags": ["fresh", "vegan"]},
+        {"id": "fv005", "name": "Potato", "price": 25, "unit": "kg", "tags": ["fresh", "vegan"]}
+      ]
+    },
+    {
+      "name": "Dairy & Eggs",
+      "items": [
+        {"id": "de001", "name": "Amul Milk", "price": 30, "unit": "500ml", "brand": "Amul", "tags": ["dairy"]},
+        {"id": "de002", "name": "Amul Butter", "price": 55, "unit": "100g", "brand": "Amul", "tags": ["dairy"]},
+        {"id": "de003", "name": "Eggs", "price": 80, "unit": "12 pcs", "tags": ["protein"]},
+        {"id": "de004", "name": "Paneer", "price": 90, "unit": "200g", "tags": ["dairy", "protein", "vegetarian"]},
+        {"id": "de005", "name": "Curd", "price": 40, "unit": "400g", "brand": "Amul", "tags": ["dairy"]}
+      ]
+    },
+    {
+      "name": "Bread & Bakery",
+      "items": [
+        {"id": "bb001", "name": "White Bread", "price": 40, "unit": "400g", "brand": "Britannia", "tags": ["bakery"]},
+        {"id": "bb002", "name": "Brown Bread", "price": 50, "unit": "400g", "brand": "Britannia", "tags": ["bakery", "healthy"]},
+        {"id": "bb003", "name": "Pav", "price": 20, "unit": "6 pcs", "tags": ["bakery"]},
+        {"id": "bb004", "name": "Croissant", "price": 35, "unit": "piece", "tags": ["bakery"]}
+      ]
+    },
+    {
+      "name": "Snacks",
+      "items": [
+        {"id": "sn001", "name": "Lays Classic", "price": 20, "unit": "52g", "brand": "Lays", "tags": ["chips", "snack"]},
+        {"id": "sn002", "name": "Kurkure", "price": 20, "unit": "90g", "brand": "Kurkure", "tags": ["snack"]},
+        {"id": "sn003", "name": "Monaco Biscuits", "price": 30, "unit": "200g", "brand": "Parle", "tags": ["biscuit", "snack"]},
+        {"id": "sn004", "name": "Oreo", "price": 30, "unit": "120g", "brand": "Cadbury", "tags": ["biscuit", "snack"]}
+      ]
+    },
+    {
+      "name": "Beverages",
+      "items": [
+        {"id": "bv001", "name": "Coca Cola", "price": 40, "unit": "750ml", "brand": "Coca Cola", "tags": ["cold drink"]},
+        {"id": "bv002", "name": "Sprite", "price": 40, "unit": "750ml", "brand": "Sprite", "tags": ["cold drink"]},
+        {"id": "bv003", "name": "Mango Juice", "price": 25, "unit": "200ml", "brand": "Real", "tags": ["juice", "healthy"]},
+        {"id": "bv004", "name": "Green Tea", "price": 180, "unit": "25 bags", "brand": "Lipton", "tags": ["tea", "healthy"]}
+      ]
+    },
+    {
+      "name": "Staples",
+      "items": [
+        {"id": "st001", "name": "Basmati Rice", "price": 150, "unit": "kg", "brand": "India Gate", "tags": ["staple"]},
+        {"id": "st002", "name": "Toor Dal", "price": 140, "unit": "kg", "tags": ["staple", "protein"]},
+        {"id": "st003", "name": "Atta", "price": 55, "unit": "kg", "brand": "Aashirvaad", "tags": ["staple"]},
+        {"id": "st004", "name": "Sugar", "price": 45, "unit": "kg", "tags": ["staple"]},
+        {"id": "st005", "name": "Salt", "price": 20, "unit": "kg", "brand": "Tata", "tags": ["staple"]}
+      ]
+    },
+    {
+      "name": "Instant Food",
+      "items": [
+        {"id": "if001", "name": "Maggi Noodles", "price": 14, "unit": "70g", "brand": "Maggi", "tags": ["instant", "snack"]},
+        {"id": "if002", "name": "Pasta", "price": 45, "unit": "500g", "brand": "Sunfeast", "tags": ["instant"]},
+        {"id": "if003", "name": "Pasta Sauce", "price": 85, "unit": "400g", "brand": "Del Monte", "tags": ["sauce"]},
+        {"id": "if004", "name": "Poha", "price": 40, "unit": "500g", "tags": ["instant", "breakfast"]}
+      ]
+    },
+    {
+      "name": "Spreads & Condiments",
+      "items": [
+        {"id": "sc001", "name": "Peanut Butter", "price": 180, "unit": "340g", "brand": "Sundrop", "tags": ["spread", "protein"]},
+        {"id": "sc002", "name": "Jam", "price": 95, "unit": "500g", "brand": "Kissan", "tags": ["spread"]},
+        {"id": "sc003", "name": "Ketchup", "price": 110, "unit": "500g", "brand": "Kissan", "tags": ["sauce"]},
+        {"id": "sc004", "name": "Mayonnaise", "price": 85, "unit": "250g", "brand": "Veeba", "tags": ["spread"]}
+      ]
+    }
+  ],
+  "recipes": {
+    "peanut butter sandwich": ["bb001", "sc001"],
+    "pb sandwich": ["bb001", "sc001"],
+    "pasta": ["if002", "if003"],
+    "pasta for two": ["if002", "if003", "fv003", "fv004"],
+    "maggi": ["if001"],
+    "breakfast": ["bb001", "de003", "de001"],
+    "sandwich": ["bb001", "de002", "fv003"],
+    "tea time snacks": ["sn003", "sn004", "bv004"],
+    "party snacks": ["sn001", "sn002", "bv001", "bv002"],
+    "healthy breakfast": ["bb002", "fv002", "de001", "bv003"],
+    "poha": ["if004", "fv004", "fv005"]
+  }
+}

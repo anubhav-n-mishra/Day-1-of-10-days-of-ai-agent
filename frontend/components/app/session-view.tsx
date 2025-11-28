@@ -3,7 +3,7 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import type { AppConfig } from '@/app-config';
-import { Shield, Mic, MicOff, Volume2, Phone, AlertTriangle } from 'lucide-react';
+import { ShoppingCart, Mic, MicOff, Volume2, Package, Sparkles, Clock } from 'lucide-react';
 import { useVoiceAssistant, AudioTrack, useTrackToggle } from '@livekit/components-react';
 import { Track } from 'livekit-client';
 import { cn } from '@/lib/utils';
@@ -22,7 +22,7 @@ export const SessionView = ({
   const isAgentListening = agentState === 'listening';
   
   return (
-    <section className="relative z-10 h-full w-full bg-gradient-to-br from-[#FFF5F7] to-white overflow-hidden" {...props}>
+    <section className="relative z-10 h-full w-full bg-gradient-to-br from-[#FAF5FF] to-white overflow-hidden" {...props}>
       {/* Hidden audio element for agent voice */}
       {agentAudioTrack && (
         <AudioTrack trackRef={agentAudioTrack} />
@@ -30,7 +30,7 @@ export const SessionView = ({
       
       <div className="min-h-screen flex flex-col items-center justify-center p-8">
         
-        {/* Razorpay SDR Icon with Audio Visualization */}
+        {/* Zepto Shopping Icon with Audio Visualization */}
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
@@ -39,14 +39,14 @@ export const SessionView = ({
         >
           <div className="relative">
             <div className={cn(
-              "absolute w-32 h-32 bg-[#9D2235] opacity-10 rounded-full transition-all",
+              "absolute w-32 h-32 bg-[#8B5CF6] opacity-10 rounded-full transition-all",
               isAgentSpeaking && "animate-pulse scale-110"
             )}></div>
-            <div className="relative bg-gradient-to-br from-[#9D2235] to-[#741A28] p-8 rounded-full shadow-2xl">
+            <div className="relative bg-gradient-to-br from-[#8B5CF6] to-[#7C3AED] p-8 rounded-full shadow-2xl">
               {isAgentSpeaking ? (
                 <Volume2 className="w-20 h-20 text-white animate-pulse" strokeWidth={2.5} />
               ) : (
-                <Shield className="w-20 h-20 text-white" strokeWidth={2.5} />
+                <ShoppingCart className="w-20 h-20 text-white" strokeWidth={2.5} />
               )}
             </div>
           </div>
@@ -60,10 +60,10 @@ export const SessionView = ({
           className="mb-6"
         >
           <h2 className="text-5xl font-black text-[#1F1F1F] mb-3 text-center">
-            {isAgentSpeaking ? "Aarav is speaking..." : isAgentListening ? "Listening to you..." : "Connected with Aarav"}
+            {isAgentSpeaking ? "Zara is speaking..." : isAgentListening ? "Listening to you..." : "Shopping with Zara"}
           </h2>
-          <p className="text-[#9D2235] text-xl text-center font-semibold">
-            {isAgentSpeaking ? "Verifying your transaction" : isAgentListening ? "Your turn to speak" : "IDFC Bank Fraud Prevention"}
+          <p className="text-[#8B5CF6] text-xl text-center font-semibold">
+            {isAgentSpeaking ? "Finding the best items for you" : isAgentListening ? "Tell me what you need" : "Zepto Express Voice Shopping"}
           </p>
         </motion.div>
 
@@ -76,12 +76,12 @@ export const SessionView = ({
         >
           <div className={cn(
             "w-3 h-3 rounded-full transition-all",
-            isAgentSpeaking ? "bg-[#9D2235] animate-pulse scale-125" : 
+            isAgentSpeaking ? "bg-[#8B5CF6] animate-pulse scale-125" : 
             isAgentListening ? "bg-[#00D632] animate-pulse" : 
             "bg-gray-400"
           )}></div>
           <span className="text-sm font-medium text-gray-600">
-            {isAgentSpeaking ? "Agent Speaking" : isAgentListening ? "You're Speaking" : "Ready"}
+            {isAgentSpeaking ? "Zara Speaking" : isAgentListening ? "You're Speaking" : "Ready"}
           </span>
         </motion.div>
 
@@ -92,27 +92,27 @@ export const SessionView = ({
           transition={{ delay: 0.4 }}
           className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 w-full max-w-4xl"
         >
-          <div className="bg-white/80 backdrop-blur-sm p-8 rounded-2xl shadow-lg border-2 border-[#9D2235]/10">
-            <Shield className="w-10 h-10 text-[#9D2235] mb-3" />
-            <h3 className="text-lg font-bold text-[#1F1F1F] mb-2">Verify Transactions</h3>
+          <div className="bg-white/80 backdrop-blur-sm p-8 rounded-2xl shadow-lg border-2 border-[#8B5CF6]/10">
+            <Package className="w-10 h-10 text-[#8B5CF6] mb-3" />
+            <h3 className="text-lg font-bold text-[#1F1F1F] mb-2">Add to Cart</h3>
             <p className="text-sm text-gray-600">
-              Confirm or decline suspicious transactions instantly
+              Just say what you want and I'll add it to your cart
             </p>
           </div>
 
-          <div className="bg-white/80 backdrop-blur-sm p-8 rounded-2xl shadow-lg border-2 border-[#9D2235]/10">
-            <AlertTriangle className="w-10 h-10 text-[#9D2235] mb-3" />
-            <h3 className="text-lg font-bold text-[#1F1F1F] mb-2">Real-Time Alerts</h3>
+          <div className="bg-white/80 backdrop-blur-sm p-8 rounded-2xl shadow-lg border-2 border-[#8B5CF6]/10">
+            <Sparkles className="w-10 h-10 text-[#8B5CF6] mb-3" />
+            <h3 className="text-lg font-bold text-[#1F1F1F] mb-2">Smart Recipes</h3>
             <p className="text-sm text-gray-600">
-              Get notified immediately about unusual activity
+              Ask for recipe ingredients and get them all added
             </p>
           </div>
 
-          <div className="bg-white/80 backdrop-blur-sm p-8 rounded-2xl shadow-lg border-2 border-[#9D2235]/10">
-            <Phone className="w-10 h-10 text-[#9D2235] mb-3" />
-            <h3 className="text-lg font-bold text-[#1F1F1F] mb-2">Block Instantly</h3>
+          <div className="bg-white/80 backdrop-blur-sm p-8 rounded-2xl shadow-lg border-2 border-[#8B5CF6]/10">
+            <Clock className="w-10 h-10 text-[#8B5CF6] mb-3" />
+            <h3 className="text-lg font-bold text-[#1F1F1F] mb-2">Quick Checkout</h3>
             <p className="text-sm text-gray-600">
-              Stop fraudulent transactions and protect your card
+              Place your order with just a voice command
             </p>
           </div>
         </motion.div>
@@ -128,7 +128,7 @@ export const SessionView = ({
             className={cn(
               "relative group transition-all duration-300",
               micEnabled 
-                ? "bg-gradient-to-r from-[#9D2235] to-[#741A28] hover:shadow-[0_20px_50px_rgba(157,34,53,0.5)]" 
+                ? "bg-gradient-to-r from-[#8B5CF6] to-[#7C3AED] hover:shadow-[0_20px_50px_rgba(139,92,246,0.5)]" 
                 : "bg-gray-400 hover:bg-gray-500"
             )}
             style={{
@@ -138,7 +138,7 @@ export const SessionView = ({
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              boxShadow: micEnabled ? '0 10px 40px rgba(157, 34, 53, 0.4)' : '0 10px 30px rgba(0, 0, 0, 0.2)'
+              boxShadow: micEnabled ? '0 10px 40px rgba(139, 92, 246, 0.4)' : '0 10px 30px rgba(0, 0, 0, 0.2)'
             }}
           >
             {micEnabled ? (
@@ -166,8 +166,8 @@ export const SessionView = ({
           className="mt-6 text-gray-600 text-center max-w-md"
         >
           {micEnabled 
-            ? "Microphone active - Speak naturally with Aarav" 
-            : "Click the microphone to start talking"}
+            ? "Microphone active - Tell Zara what you'd like to order" 
+            : "Click the microphone to start shopping"}
         </motion.p>
 
         {/* Pro Tip */}
@@ -175,10 +175,10 @@ export const SessionView = ({
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.7 }}
-          className="mt-12 bg-white/80 backdrop-blur-sm p-6 rounded-xl max-w-2xl border-2 border-[#9D2235]/20 shadow-lg"
+          className="mt-12 bg-white/80 backdrop-blur-sm p-6 rounded-xl max-w-2xl border-2 border-[#8B5CF6]/20 shadow-lg"
         >
           <p className="text-sm text-gray-700 leading-relaxed text-center">
-            <span className="font-bold text-[#9D2235]">💡 Sample Questions:</span> "I need to verify a transaction" • "Can you check if my card is safe?" • "Is this charge legitimate?" • "I want to report suspicious activity" • "Can you block my card?"
+            <span className="font-bold text-[#8B5CF6]">💡 Try saying:</span> "Add milk to my cart" • "I need ingredients for pasta" • "What's in my cart?" • "Remove bread from cart" • "Place my order"
           </p>
         </motion.div>
       </div>

@@ -1,0 +1,17 @@
+{
+  "order_id": "ZEP20251128193618",
+  "customer_name": "Customer",
+  "timestamp": "2025-11-28T19:36:18.485979",
+  "status": "confirmed",
+  "items": [
+    {
+      "id": "de001",
+      "name": "Amul Milk",
+      "price": 30,
+      "unit": "500ml",
+      "quantity": 1
+    }
+  ],
+  "total": 30,
+  "delivery_estimate": "10 minutes"
+}

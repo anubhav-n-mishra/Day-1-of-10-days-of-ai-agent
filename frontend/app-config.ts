@@ -20,9 +20,9 @@ export interface AppConfig {
 }
 
 export const APP_CONFIG_DEFAULTS: AppConfig = {
-  companyName: 'IDFC Bank',
-  pageTitle: 'IDFC Bank - Fraud Alert System',
-  pageDescription: 'Secure fraud detection and verification system',
+  companyName: 'Zepto Express',
+  pageTitle: 'Zepto Express - Voice Shopping Assistant',
+  pageDescription: 'Shop for groceries and essentials using just your voice',
 
   supportsChatInput: true,
   supportsVideoInput: false,
@@ -30,10 +30,10 @@ export const APP_CONFIG_DEFAULTS: AppConfig = {
   isPreConnectBufferEnabled: true,
 
   logo: '/ccd-logo.svg',
-  accent: '#9D2235',
+  accent: '#8B5CF6',
   logoDark: '/lk-logo-dark.svg',
-  accentDark: '#9D2235',
-  startButtonText: 'Connect with Aarav',
+  accentDark: '#A78BFA',
+  startButtonText: 'Start Shopping with Zara',
 
   // for LiveKit Cloud Sandbox
   sandboxId: undefined,

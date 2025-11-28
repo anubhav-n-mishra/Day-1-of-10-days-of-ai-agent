@@ -1,7 +1,10 @@
 import logging
-import sqlite3
+import json
+import sys
+import signal
 from pathlib import Path
 from datetime import datetime
+from typing import Optional
 
 from dotenv import load_dotenv
 from livekit.agents import (
@@ -15,260 +18,302 @@ from livekit.agents import (
 )
 from livekit.plugins import murf, silero, google, deepgram
 
+# Windows signal handling
+if sys.platform == 'win32':
+    signal.signal(signal.SIGBREAK, signal.SIG_IGN)
+
 logger = logging.getLogger("agent")
 load_dotenv(dotenv_path=Path(__file__).parent.parent / ".env.local")
 
-# Database setup
-DB_PATH = Path(__file__).parent.parent / "fraud_cases.db"
+# File paths
+CATALOG_PATH = Path(__file__).parent.parent / "catalog.json"
+ORDERS_PATH = Path(__file__).parent.parent / "orders.json"
+CURRENT_ORDER_PATH = Path(__file__).parent.parent / "current_order.json"
 
-def init_database():
-    """Initialize the fraud cases database with sample data"""
-    conn = sqlite3.connect(DB_PATH)
-    cursor = conn.cursor()
-    
-    # Create table
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS fraud_cases (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            userName TEXT NOT NULL,
-            securityIdentifier TEXT NOT NULL,
-            securityQuestion TEXT NOT NULL,
-            securityAnswer TEXT NOT NULL,
-            cardEnding TEXT NOT NULL,
-            case_status TEXT DEFAULT 'pending_review',
-            transactionName TEXT NOT NULL,
-            transactionAmount REAL NOT NULL,
-            transactionTime TEXT NOT NULL,
-            transactionCategory TEXT NOT NULL,
-            transactionSource TEXT NOT NULL,
-            transactionLocation TEXT NOT NULL,
-            outcome TEXT,
-            updated_at TEXT
-        )
-    """)
-    
-    # Check if we need to add sample data
-    cursor.execute("SELECT COUNT(*) FROM fraud_cases")
-    if cursor.fetchone()[0] == 0:
-        # Insert sample fraud cases
-        sample_cases = [
-            ("John", "12345", "What is your mother's maiden name?", "Smith", "4242",
-             "pending_review", "ABC Electronics", 15000.00, "2025-01-15 14:30:00",
-             "e-commerce", "alibaba.com", "Mumbai, India", None, None),
-            ("Sarah", "67890", "What is your favorite color?", "Blue", "5678",
-             "pending_review", "XYZ Fashion Store", 8500.00, "2025-01-15 16:45:00",
-             "retail", "fashionstore.com", "Delhi, India", None, None),
-            ("Michael", "11223", "What city were you born in?", "Boston", "9012",
-             "pending_review", "Global Services Ltd", 25000.00, "2025-01-15 18:20:00",
-             "services", "globalservices.com", "Bangalore, India", None, None),
-        ]
-        
-        cursor.executemany("""
-            INSERT INTO fraud_cases (
-                userName, securityIdentifier, securityQuestion, securityAnswer,
-                cardEnding, case_status, transactionName, transactionAmount,
-                transactionTime, transactionCategory, transactionSource,
-                transactionLocation, outcome, updated_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """, sample_cases)
-        
-        conn.commit()
-        logger.info(f"✅ Initialized database with {len(sample_cases)} sample fraud cases")
-    
-    conn.close()
+# Load catalog
+def load_catalog():
+    """Load the product catalog from JSON file"""
+    with open(CATALOG_PATH, 'r') as f:
+        return json.load(f)
 
-# Initialize database on module load
-init_database()
+CATALOG = load_catalog()
+
+def get_item_by_id(item_id: str) -> Optional[dict]:
+    """Get item details by ID"""
+    for category in CATALOG['categories']:
+        for item in category['items']:
+            if item['id'] == item_id:
+                return {**item, 'category': category['name']}
+    return None
+
+def search_items(query: str) -> list:
+    """Search for items by name (fuzzy match)"""
+    query_lower = query.lower()
+    results = []
+    for category in CATALOG['categories']:
+        for item in category['items']:
+            if query_lower in item['name'].lower():
+                results.append({**item, 'category': category['name']})
+    return results
+
+def get_recipe_items(recipe_name: str) -> list:
+    """Get items for a recipe/meal"""
+    recipe_lower = recipe_name.lower()
+    for recipe_key, item_ids in CATALOG.get('recipes', {}).items():
+        if recipe_key in recipe_lower or recipe_lower in recipe_key:
+            items = []
+            for item_id in item_ids:
+                item = get_item_by_id(item_id)
+                if item:
+                    items.append(item)
+            return items
+    return []
 
 
-class FraudAlertAgent(Agent):
-    """IDFC Bank Fraud Alert Detection Agent"""
+class ShoppingAssistant(Agent):
+    """Zepto Express Shopping Assistant Voice Agent"""
     
     def __init__(self):
         super().__init__(
-            instructions="""You are Aarav, a fraud prevention specialist from IDFC Bank's Security Team.
+            instructions="""You are Zara, a friendly and efficient shopping assistant for Zepto Express - India's fastest grocery delivery service.
 
-Your job is to help customers verify suspicious transactions and prevent fraud.
+Your job is to help customers order groceries and food items through voice conversation.
 
-CALL FLOW:
-1. Greet warmly: "Hello! I'm Aarav from IDFC Bank's Fraud Prevention Team. I'm calling about a potentially suspicious transaction on your account."
+PERSONALITY:
+- Friendly, upbeat, and helpful
+- Quick and efficient (like Zepto's 10-minute delivery!)
+- Use casual Indian English naturally
+- Be enthusiastic about helping customers
 
-2. Ask for their name to load their fraud case: "May I have your name please?"
+CONVERSATION FLOW:
+1. Greet warmly: "Hi there! I'm Zara, your Zepto Express shopping assistant. I can help you order groceries, snacks, fruits, dairy - you name it! What would you like to add to your cart today?"
 
-3. Once you have the name, use the load_fraud_case tool to fetch their case.
+2. When user requests items:
+   - If they ask for specific items (like "add milk"), use add_to_cart tool
+   - If they ask for "ingredients for X" or "what I need for X", use get_ingredients_for_recipe tool first, then add those items
+   - Always confirm what you've added
 
-4. For verification, ask the security question from the loaded case.
+3. Cart operations:
+   - When asked "what's in my cart", use show_cart tool
+   - For "remove X", use remove_from_cart tool
+   - For quantity changes, use update_quantity tool
 
-5. If they answer correctly, read out the transaction details:
-   - Transaction amount
-   - Merchant name
-   - Location
-   - Time
-   - Card ending
+4. Finishing the order:
+   - When user says "that's all", "place order", "I'm done", "checkout"
+   - Use place_order tool to save the order
+   - Confirm the total and thank them
 
-6. Ask clearly: "Did you authorize this transaction? Please say yes or no."
+SPEAKING STYLE:
+- Keep responses concise but friendly
+- Confirm additions: "Added 2 packets of Maggi to your cart! Anything else?"
+- For recipes: "For pasta, I'll add pasta and sauce to your cart. Sound good?"
+- Read prices when relevant: "Amul Milk is 30 rupees for 500ml"
 
-7. Based on their response:
-   - If YES: Use mark_case_safe tool and say "Thank you for confirming. I've marked this transaction as safe. Your card remains active."
-   - If NO: Use mark_case_fraud tool and say "I understand. I've immediately blocked your card ending in [XXXX] for your security. We'll send you a replacement card within 3-5 business days. A fraud investigation has been initiated."
+IMPORTANT:
+- Always use tools for cart operations - don't just say you added something
+- Confirm cart changes verbally
+- If item not found, suggest alternatives
+- Keep the conversation flowing naturally
 
-8. End warmly: "Is there anything else I can help you with today regarding this matter?"
-
-IMPORTANT RULES:
-- Never ask for full card numbers, PINs, CVV, or passwords
-- Be calm, professional, and reassuring
-- Use the customer's name naturally
-- Speak clearly when reading transaction details
-- Wait for clear yes/no responses
-- Always confirm the action taken
-
-FIRST MESSAGE: "Hello! I'm Aarav from IDFC Bank's Fraud Prevention Team. I'm calling about a potentially suspicious transaction on your account. May I have your name please?"
+FIRST MESSAGE: "Hi there! I'm Zara from Zepto Express. I can help you order groceries super fast! What would you like to add to your cart today?"
 """,
-            tts=murf.TTS(voice="en-US-matthew", model="FALCON"),
-            llm=google.LLM(model="gemini-2.0-flash-exp"),
+            tts=murf.TTS(voice="en-US-natalie", model="FALCON"),
+            llm=google.LLM(model="gemini-2.0-flash"),
             vad=silero.VAD.load(),
             stt=deepgram.STT(model="nova-3"),
         )
         
-        self.current_case = None
+        # Initialize cart
+        self.cart = []
+    
+    def _calculate_total(self) -> float:
+        """Calculate cart total"""
+        return sum(item['price'] * item['quantity'] for item in self.cart)
+    
+    def _format_cart(self) -> str:
+        """Format cart for display"""
+        if not self.cart:
+            return "Your cart is empty."
+        
+        lines = ["Here's what's in your cart:"]
+        for item in self.cart:
+            lines.append(f"- {item['name']} x{item['quantity']} = ₹{item['price'] * item['quantity']}")
+        lines.append(f"\nTotal: ₹{self._calculate_total()}")
+        return "\n".join(lines)
     
     @function_tool()
-    async def load_fraud_case(self, userName: str, context: RunContext) -> str:
-        """Load fraud case from database for the given user name"""
-        try:
-            conn = sqlite3.connect(DB_PATH)
-            cursor = conn.cursor()
-            
-            cursor.execute("""
-                SELECT * FROM fraud_cases 
-                WHERE userName = ? AND case_status = 'pending_review'
-                LIMIT 1
-            """, (userName,))
-            
-            row = cursor.fetchone()
-            conn.close()
-            
-            if not row:
-                return f"No pending fraud cases found for {userName}. The system may have already processed all alerts."
-            
-            # Store case in agent state
-            self.current_case = {
-                "id": row[0],
-                "userName": row[1],
-                "securityIdentifier": row[2],
-                "securityQuestion": row[3],
-                "securityAnswer": row[4],
-                "cardEnding": row[5],
-                "case_status": row[6],
-                "transactionName": row[7],
-                "transactionAmount": row[8],
-                "transactionTime": row[9],
-                "transactionCategory": row[10],
-                "transactionSource": row[11],
-                "transactionLocation": row[12],
-            }
-            
-            logger.info(f"📋 Loaded fraud case for {userName}: ₹{self.current_case['transactionAmount']} at {self.current_case['transactionName']}")
-            
-            return f"""Case loaded successfully. 
-Security Question: {self.current_case['securityQuestion']}
-Transaction Details: ₹{self.current_case['transactionAmount']} at {self.current_case['transactionName']} in {self.current_case['transactionLocation']} on {self.current_case['transactionTime']}
-Card ending: {self.current_case['cardEnding']}"""
-            
-        except Exception as e:
-            logger.error(f"❌ Error loading fraud case: {e}")
-            return f"I apologize, but I'm having trouble accessing your case information. Please try again."
+    async def search_catalog(self, query: str, context: RunContext) -> str:
+        """Search for items in the catalog by name"""
+        results = search_items(query)
+        if not results:
+            return f"Sorry, I couldn't find '{query}' in our catalog. Try searching for something else like milk, bread, eggs, or snacks."
+        
+        lines = [f"Found {len(results)} item(s) matching '{query}':"]
+        for item in results[:5]:  # Show max 5 results
+            lines.append(f"- {item['name']}: ₹{item['price']}/{item['unit']}")
+        return "\n".join(lines)
     
     @function_tool()
-    async def verify_security_answer(self, answer: str, context: RunContext) -> str:
-        """Verify the user's security answer"""
-        if not self.current_case:
-            return "ERROR: No case loaded. Please provide your name first."
+    async def add_to_cart(self, item_name: str, quantity: int, context: RunContext) -> str:
+        """Add an item to the shopping cart"""
+        # Search for the item
+        results = search_items(item_name)
+        if not results:
+            return f"Sorry, I couldn't find '{item_name}' in our catalog. Would you like me to search for something similar?"
         
-        correct_answer = self.current_case['securityAnswer'].lower().strip()
-        user_answer = answer.lower().strip()
+        item = results[0]  # Take the best match
         
-        if user_answer == correct_answer:
-            logger.info(f"✅ Security verification passed for {self.current_case['userName']}")
-            return "VERIFIED: Security answer is correct. Proceed with transaction details."
-        else:
-            logger.warning(f"❌ Security verification failed for {self.current_case['userName']}")
-            return "FAILED: Security answer is incorrect. Cannot proceed with fraud verification."
+        # Check if item already in cart
+        for cart_item in self.cart:
+            if cart_item['id'] == item['id']:
+                cart_item['quantity'] += quantity
+                logger.info(f"🛒 Updated {item['name']} quantity to {cart_item['quantity']}")
+                return f"Updated {item['name']} quantity to {cart_item['quantity']}. Your cart total is now ₹{self._calculate_total()}."
+        
+        # Add new item to cart
+        self.cart.append({
+            'id': item['id'],
+            'name': item['name'],
+            'price': item['price'],
+            'unit': item['unit'],
+            'quantity': quantity
+        })
+        
+        logger.info(f"🛒 Added {quantity}x {item['name']} to cart")
+        return f"Added {quantity} {item['name']} (₹{item['price']}/{item['unit']}) to your cart. Cart total: ₹{self._calculate_total()}."
     
     @function_tool()
-    async def mark_case_safe(self, context: RunContext) -> str:
-        """Mark the fraud case as safe/legitimate"""
-        if not self.current_case:
-            return "ERROR: No case loaded."
+    async def remove_from_cart(self, item_name: str, context: RunContext) -> str:
+        """Remove an item from the shopping cart"""
+        item_lower = item_name.lower()
+        for i, cart_item in enumerate(self.cart):
+            if item_lower in cart_item['name'].lower():
+                removed = self.cart.pop(i)
+                logger.info(f"🗑️ Removed {removed['name']} from cart")
+                return f"Removed {removed['name']} from your cart. Cart total: ₹{self._calculate_total()}."
         
-        try:
-            conn = sqlite3.connect(DB_PATH)
-            cursor = conn.cursor()
-            
-            cursor.execute("""
-                UPDATE fraud_cases 
-                SET case_status = 'confirmed_safe',
-                    outcome = 'Customer confirmed transaction as legitimate',
-                    updated_at = ?
-                WHERE id = ?
-            """, (datetime.now().isoformat(), self.current_case['id']))
-            
-            conn.commit()
-            conn.close()
-            
-            logger.info(f"✅ Case {self.current_case['id']} marked as SAFE")
-            
-            return f"SUCCESS: Transaction marked as safe. Card ending {self.current_case['cardEnding']} remains active."
-            
-        except Exception as e:
-            logger.error(f"❌ Error marking case safe: {e}")
-            return "ERROR: Could not update case status."
+        return f"'{item_name}' is not in your cart."
     
     @function_tool()
-    async def mark_case_fraud(self, context: RunContext) -> str:
-        """Mark the fraud case as fraudulent and block the card"""
-        if not self.current_case:
-            return "ERROR: No case loaded."
+    async def update_quantity(self, item_name: str, new_quantity: int, context: RunContext) -> str:
+        """Update the quantity of an item in the cart"""
+        if new_quantity <= 0:
+            return await self.remove_from_cart(item_name, context)
         
-        try:
-            conn = sqlite3.connect(DB_PATH)
-            cursor = conn.cursor()
+        item_lower = item_name.lower()
+        for cart_item in self.cart:
+            if item_lower in cart_item['name'].lower():
+                old_qty = cart_item['quantity']
+                cart_item['quantity'] = new_quantity
+                logger.info(f"📝 Updated {cart_item['name']} from {old_qty} to {new_quantity}")
+                return f"Updated {cart_item['name']} quantity from {old_qty} to {new_quantity}. Cart total: ₹{self._calculate_total()}."
+        
+        return f"'{item_name}' is not in your cart. Would you like me to add it?"
+    
+    @function_tool()
+    async def show_cart(self, context: RunContext) -> str:
+        """Show all items currently in the cart"""
+        logger.info(f"🛒 Showing cart with {len(self.cart)} items")
+        return self._format_cart()
+    
+    @function_tool()
+    async def get_ingredients_for_recipe(self, recipe_name: str, context: RunContext) -> str:
+        """Get and add ingredients for a recipe or meal to the cart"""
+        items = get_recipe_items(recipe_name)
+        
+        if not items:
+            return f"I don't have a recipe for '{recipe_name}'. But tell me what you're making and I can help you find the ingredients!"
+        
+        # Add all items to cart
+        added_items = []
+        for item in items:
+            # Check if already in cart
+            found = False
+            for cart_item in self.cart:
+                if cart_item['id'] == item['id']:
+                    cart_item['quantity'] += 1
+                    found = True
+                    break
             
-            cursor.execute("""
-                UPDATE fraud_cases 
-                SET case_status = 'confirmed_fraud',
-                    outcome = 'Customer denied transaction - Card blocked and fraud investigation initiated',
-                    updated_at = ?
-                WHERE id = ?
-            """, (datetime.now().isoformat(), self.current_case['id']))
-            
-            conn.commit()
-            conn.close()
-            
-            logger.info(f"🚨 Case {self.current_case['id']} marked as FRAUD - Card blocked")
-            
-            return f"SUCCESS: Card ending {self.current_case['cardEnding']} has been blocked. Fraud investigation initiated. Replacement card will be sent within 3-5 business days."
-            
-        except Exception as e:
-            logger.error(f"❌ Error marking case fraud: {e}")
-            return "ERROR: Could not update case status."
+            if not found:
+                self.cart.append({
+                    'id': item['id'],
+                    'name': item['name'],
+                    'price': item['price'],
+                    'unit': item['unit'],
+                    'quantity': 1
+                })
+            added_items.append(item['name'])
+        
+        logger.info(f"🍳 Added recipe items for {recipe_name}: {added_items}")
+        return f"For {recipe_name}, I've added: {', '.join(added_items)}. Cart total: ₹{self._calculate_total()}."
+    
+    @function_tool()
+    async def place_order(self, customer_name: str, context: RunContext) -> str:
+        """Place the order and save it to JSON file"""
+        if not self.cart:
+            return "Your cart is empty! Add some items before placing an order."
+        
+        # Create order object
+        order = {
+            'order_id': f"ZEP{datetime.now().strftime('%Y%m%d%H%M%S')}",
+            'customer_name': customer_name,
+            'timestamp': datetime.now().isoformat(),
+            'status': 'confirmed',
+            'items': self.cart.copy(),
+            'total': self._calculate_total(),
+            'delivery_estimate': '10 minutes'
+        }
+        
+        # Save current order
+        with open(CURRENT_ORDER_PATH, 'w') as f:
+            json.dump(order, f, indent=2)
+        
+        # Append to order history
+        orders = []
+        if ORDERS_PATH.exists():
+            with open(ORDERS_PATH, 'r') as f:
+                orders = json.load(f)
+        orders.append(order)
+        with open(ORDERS_PATH, 'w') as f:
+            json.dump(orders, f, indent=2)
+        
+        logger.info(f"✅ Order {order['order_id']} placed! Total: ₹{order['total']}")
+        
+        # Clear cart
+        cart_summary = self._format_cart()
+        self.cart = []
+        
+        return f"""Order placed successfully!
+        
+Order ID: {order['order_id']}
+{cart_summary}
+
+Your order will arrive in approximately 10 minutes. Thank you for shopping with Zepto Express!"""
+    
+    @function_tool()
+    async def clear_cart(self, context: RunContext) -> str:
+        """Clear all items from the cart"""
+        self.cart = []
+        logger.info("🗑️ Cart cleared")
+        return "Cart cleared! What would you like to add?"
 
 
 async def entrypoint(ctx: JobContext):
-    """Main entrypoint for the fraud alert agent"""
-    logger.info("🚨 Starting IDFC Bank Fraud Alert Agent...")
+    """Main entrypoint for the shopping assistant agent"""
+    logger.info("🛒 Starting Zepto Express Shopping Assistant...")
     
     await ctx.connect()
     logger.info("✅ Connected to LiveKit room")
     
     # Create agent instance
-    agent = FraudAlertAgent()
+    agent = ShoppingAssistant()
     
     # Start the agent session
     session = AgentSession()
     await session.start(agent, room=ctx.room)
     
-    logger.info("🎙️ Fraud Alert Agent is ready to take calls")
+    logger.info("🎙️ Shopping Assistant is ready to take orders!")
 
 
 if __name__ == "__main__":
