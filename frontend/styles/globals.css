@@ -188,6 +188,24 @@
     box-shadow: 0 0 20px rgba(16, 124, 16, 0.6);
   }
   
+  /* Custom scrollbar for chat */
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: #107C10;
+    border-radius: 3px;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: #9BDB4D;
+  }
+  
   /* Screen reader only class */
   .sr-only {
     position: absolute;

@@ -1,0 +1,47 @@
+{
+  "session_id": "20251129_192530",
+  "player": {
+    "name": "Light",
+    "class": "warrior",
+    "health": 100,
+    "max_health": 100,
+    "status": "Healthy",
+    "gold": 25,
+    "attributes": {
+      "strength": 15,
+      "dexterity": 12,
+      "intelligence": 10,
+      "charisma": 11,
+      "luck": 10
+    },
+    "inventory": [
+      {
+        "name": "Worn Leather Armor",
+        "type": "armor",
+        "description": "Basic protection"
+      },
+      {
+        "name": "Iron Sword",
+        "type": "weapon",
+        "description": "A reliable blade"
+      },
+      {
+        "name": "Waterskin",
+        "type": "consumable",
+        "description": "Fresh water"
+      },
+      {
+        "name": "Torch",
+        "type": "tool",
+        "description": "Lights the darkness",
+        "quantity": 3
+      }
+    ]
+  },
+  "current_location": "Rusty Tankard Tavern, Millbrook Village",
+  "npcs": [],
+  "quests": [],
+  "events": [],
+  "turn_count": 0,
+  "story_act": "Act 1 - The Call to Adventure"
+}
