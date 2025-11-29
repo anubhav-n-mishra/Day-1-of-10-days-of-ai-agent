@@ -5,73 +5,83 @@
 
 :root {
   --radius: 0.75rem;
-  --background: #ffffff;
-  --foreground: #1F1F1F;
-  --card: #ffffff;
-  --card-foreground: #1F1F1F;
-  --popover: #ffffff;
-  --popover-foreground: #1F1F1F;
-  --primary: #8B5CF6;
+  --background: #0a0a0a;
+  --foreground: #ffffff;
+  --card: #1a1a1a;
+  --card-foreground: #ffffff;
+  --popover: #1a1a1a;
+  --popover-foreground: #ffffff;
+  --primary: #107C10;
   --primary-foreground: #ffffff;
-  --secondary: #EDE9FE;
-  --secondary-foreground: #8B5CF6;
-  --muted: #f8f9fa;
-  --muted-foreground: #6c757d;
-  --accent: #8B5CF6;
-  --accent-foreground: #ffffff;
-  --destructive: #D32F2F;
+  --secondary: #1a3d1a;
+  --secondary-foreground: #9BDB4D;
+  --muted: #2d2d2d;
+  --muted-foreground: #a0a0a0;
+  --accent: #9BDB4D;
+  --accent-foreground: #0a0a0a;
+  --destructive: #E81123;
   --destructive-foreground: #ffffff;
-  --border: #e9ecef;
-  --input: #dee2e6;
-  --ring: #8B5CF6;
-  --chart-1: #8B5CF6;
-  --chart-2: #7C3AED;
-  --chart-3: #EDE9FE;
-  --chart-4: #A78BFA;
-  --chart-5: #C4B5FD;
-  --sidebar: #f8f9fa;
-  --sidebar-foreground: #1F1F1F;
-  --sidebar-primary: #8B5CF6;
+  --border: #3d3d3d;
+  --input: #3d3d3d;
+  --ring: #107C10;
+  --chart-1: #107C10;
+  --chart-2: #9BDB4D;
+  --chart-3: #1a3d1a;
+  --chart-4: #54A81B;
+  --chart-5: #0E5C0E;
+  --sidebar: #1a1a1a;
+  --sidebar-foreground: #ffffff;
+  --sidebar-primary: #107C10;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #EDE9FE;
-  --sidebar-accent-foreground: #8B5CF6;
-  --sidebar-border: #e9ecef;
-  --sidebar-ring: #8B5CF6;
+  --sidebar-accent: #1a3d1a;
+  --sidebar-accent-foreground: #9BDB4D;
+  --sidebar-border: #3d3d3d;
+  --sidebar-ring: #107C10;
+  
+  /* Xbox Game Studios Colors */
+  --xbox-green: #107C10;
+  --xbox-light-green: #9BDB4D;
+  --xbox-dark: #0a0a0a;
+  --xbox-gray: #2d2d2d;
 }
 
 .dark {
-  --background: #1a1625;
+  --background: #0a0a0a;
   --foreground: #ffffff;
-  --card: #2d2640;
+  --card: #1a1a1a;
   --card-foreground: #ffffff;
-  --popover: #2d2640;
+  --popover: #1a1a1a;
   --popover-foreground: #ffffff;
-  --primary: #A78BFA;
-  --primary-foreground: #ffffff;
-  --secondary: #3d3659;
-  --secondary-foreground: #ffffff;
-  --muted: #3d3659;
-  --muted-foreground: #d4d0e6;
-  --accent: #8B5CF6;
+  --primary: #9BDB4D;
+  --primary-foreground: #0a0a0a;
+  --secondary: #1a3d1a;
+  --secondary-foreground: #9BDB4D;
+  --muted: #2d2d2d;
+  --muted-foreground: #a0a0a0;
+  --accent: #107C10;
   --accent-foreground: #ffffff;
-  --destructive: #d62b1f;
+  --destructive: #E81123;
   --destructive-foreground: #ffffff;
-  --border: #3d3659;
-  --input: #3d3659;
-  --ring: #8B5CF6;
-  --chart-1: #8B5CF6;
-  --chart-2: #7C3AED;
-  --chart-3: #A78BFA;
-  --chart-4: #C4B5FD;
-  --chart-5: #EDE9FE;
-  --sidebar: #2d2640;
+  --border: #3d3d3d;
+  --input: #3d3d3d;
+  --ring: #107C10;
+  --chart-1: #107C10;
+  --chart-2: #9BDB4D;
+  --chart-3: #54A81B;
+  --chart-4: #1a3d1a;
+  --chart-5: #0E5C0E;
+  --sidebar: #1a1a1a;
   --sidebar-foreground: #ffffff;
-  --sidebar-primary: #8B5CF6;
+  --sidebar-primary: #107C10;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #3d3659;
-  --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: #3d3659;
-  --sidebar-ring: #8B5CF6;
+  --sidebar-accent: #1a3d1a;
+  --sidebar-accent-foreground: #9BDB4D;
+  --sidebar-border: #3d3d3d;
+  --sidebar-ring: #107C10;
+  
+  /* Xbox Game Studios Colors */
+  --xbox-green: #107C10;
+  --xbox-light-green: #9BDB4D;
 }
 
 @theme inline {
@@ -137,23 +147,58 @@
     background: #ffffff;
   }
 
-  /* Zepto-inspired buttons */
+  /* Xbox Game Studios brand buttons - WCAG AA compliant */
   .btn-primary {
-    background-color: #8B5CF6;
+    background-color: #107C10;
     color: #ffffff;
-    border-radius: 1.5rem;
-    padding: 0.875rem 2rem;
-    font-weight: 600;
-    font-size: 1rem;
-    letter-spacing: 0.05em;
-    text-transform: none;
+    border-radius: 0.5rem;
+    padding: 1rem 2.5rem;
+    font-weight: 700;
+    font-size: 1.125rem;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
     transition: all 0.2s ease;
+    border: 2px solid transparent;
   }
   
   .btn-primary:hover {
-    background-color: #7C3AED;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+    background-color: #9BDB4D;
+    color: #0a0a0a;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(16, 124, 16, 0.5);
+  }
+  
+  .btn-primary:focus {
+    outline: 3px solid #9BDB4D;
+    outline-offset: 3px;
+  }
+  
+  /* Accessibility: High contrast focus states */
+  *:focus-visible {
+    outline: 3px solid #107C10;
+    outline-offset: 2px;
+  }
+  
+  /* Game master special styles */
+  .game-text {
+    text-shadow: 0 0 10px rgba(155, 219, 77, 0.5);
+  }
+  
+  .dice-glow {
+    box-shadow: 0 0 20px rgba(16, 124, 16, 0.6);
+  }
+  
+  /* Screen reader only class */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
   }
 }
 

@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 60" width="200" height="60">
+  <!-- Background -->
+  <rect width="200" height="60" fill="transparent"/>
+  
+  <!-- Sword Icon -->
+  <g transform="translate(10, 5)">
+    <rect x="5" y="5" width="40" height="40" rx="8" fill="#107C10"/>
+    <!-- Sword blade -->
+    <path d="M25 12 L25 38 M20 15 L30 15" stroke="white" stroke-width="3" stroke-linecap="round"/>
+    <!-- Sword handle -->
+    <rect x="22" y="35" width="6" height="8" fill="white" rx="1"/>
+    <!-- Cross guard -->
+    <rect x="18" y="33" width="14" height="3" fill="white" rx="1"/>
+  </g>
+  
+  <!-- Text -->
+  <text x="60" y="25" font-family="Arial Black, sans-serif" font-size="14" font-weight="900" fill="#9BDB4D">REALM OF</text>
+  <text x="60" y="48" font-family="Arial Black, sans-serif" font-size="20" font-weight="900" fill="white">ELDORIA</text>
+</svg>

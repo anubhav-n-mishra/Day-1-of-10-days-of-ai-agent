@@ -20,20 +20,20 @@ export interface AppConfig {
 }
 
 export const APP_CONFIG_DEFAULTS: AppConfig = {
-  companyName: 'Zepto Express',
-  pageTitle: 'Zepto Express - Voice Shopping Assistant',
-  pageDescription: 'Shop for groceries and essentials using just your voice',
+  companyName: 'Realm of Eldoria',
+  pageTitle: 'Realm of Eldoria - Voice D&D Adventure',
+  pageDescription: 'Embark on an epic voice-guided D&D adventure with Dungeon Master Aldric. Roll dice, battle monsters, and save the realm from the Shadow Dragon Malachar!',
 
   supportsChatInput: true,
   supportsVideoInput: false,
   supportsScreenShare: false,
   isPreConnectBufferEnabled: true,
 
-  logo: '/ccd-logo.svg',
-  accent: '#8B5CF6',
-  logoDark: '/lk-logo-dark.svg',
-  accentDark: '#A78BFA',
-  startButtonText: 'Start Shopping with Zara',
+  logo: '/eldoria-logo.svg',
+  accent: '#107C10',
+  logoDark: '/eldoria-logo.svg',
+  accentDark: '#9BDB4D',
+  startButtonText: 'Begin Your Quest',
 
   // for LiveKit Cloud Sandbox
   sandboxId: undefined,

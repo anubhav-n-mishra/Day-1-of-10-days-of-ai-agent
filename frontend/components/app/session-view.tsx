@@ -3,7 +3,7 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import type { AppConfig } from '@/app-config';
-import { ShoppingCart, Mic, MicOff, Volume2, Package, Sparkles, Clock } from 'lucide-react';
+import { Sword, Shield, Mic, MicOff, Volume2, Dice6, Scroll, Heart, Backpack } from 'lucide-react';
 import { useVoiceAssistant, AudioTrack, useTrackToggle } from '@livekit/components-react';
 import { Track } from 'livekit-client';
 import { cn } from '@/lib/utils';
@@ -21,103 +21,143 @@ export const SessionView = ({
   const isAgentSpeaking = agentState === 'speaking';
   const isAgentListening = agentState === 'listening';
   
+  // Status text for screen readers
+  const statusText = isAgentSpeaking 
+    ? "Dungeon Master Aldric is speaking. Listen carefully." 
+    : isAgentListening 
+    ? "Aldric awaits your command. Speak now, adventurer!" 
+    : "Ready to continue your quest.";
+  
   return (
-    <section className="relative z-10 h-full w-full bg-gradient-to-br from-[#FAF5FF] to-white overflow-hidden" {...props}>
+    <section 
+      className="relative z-10 h-full w-full bg-[#0a0a0a] overflow-hidden" 
+      role="main"
+      aria-label="D&D Voice Adventure with Dungeon Master Aldric"
+      {...props}
+    >
       {/* Hidden audio element for agent voice */}
       {agentAudioTrack && (
         <AudioTrack trackRef={agentAudioTrack} />
       )}
       
-      <div className="min-h-screen flex flex-col items-center justify-center p-8">
+      {/* Live region for screen reader announcements */}
+      <div 
+        role="status" 
+        aria-live="polite" 
+        aria-atomic="true"
+        className="sr-only"
+      >
+        {statusText}
+      </div>
+      
+      <div className="min-h-screen flex flex-col items-center justify-center p-6">
         
-        {/* Zepto Shopping Icon with Audio Visualization */}
+        {/* Dungeon Master Icon */}
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.5 }}
-          className="mb-8"
+          className="mb-6"
+          role="img"
+          aria-label={isAgentSpeaking ? "Aldric is narrating your adventure" : "Dungeon Master Aldric"}
         >
           <div className="relative">
             <div className={cn(
-              "absolute w-32 h-32 bg-[#8B5CF6] opacity-10 rounded-full transition-all",
+              "absolute w-28 h-28 bg-[#107C10] opacity-30 rounded-full transition-all -inset-2",
               isAgentSpeaking && "animate-pulse scale-110"
-            )}></div>
-            <div className="relative bg-gradient-to-br from-[#8B5CF6] to-[#7C3AED] p-8 rounded-full shadow-2xl">
+            )} aria-hidden="true"></div>
+            <div className="relative bg-[#107C10] p-6 rounded-xl shadow-xl dice-glow">
               {isAgentSpeaking ? (
-                <Volume2 className="w-20 h-20 text-white animate-pulse" strokeWidth={2.5} />
+                <Volume2 className="w-16 h-16 text-white animate-pulse" strokeWidth={2.5} aria-hidden="true" />
               ) : (
-                <ShoppingCart className="w-20 h-20 text-white" strokeWidth={2.5} />
+                <Dice6 className="w-16 h-16 text-white" strokeWidth={2.5} aria-hidden="true" />
               )}
             </div>
           </div>
         </motion.div>
         
-        {/* Agent Status */}
+        {/* Agent Status - Epic fantasy style */}
         <motion.div
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.2 }}
-          className="mb-6"
+          className="mb-4 text-center"
         >
-          <h2 className="text-5xl font-black text-[#1F1F1F] mb-3 text-center">
-            {isAgentSpeaking ? "Zara is speaking..." : isAgentListening ? "Listening to you..." : "Shopping with Zara"}
-          </h2>
-          <p className="text-[#8B5CF6] text-xl text-center font-semibold">
-            {isAgentSpeaking ? "Finding the best items for you" : isAgentListening ? "Tell me what you need" : "Zepto Express Voice Shopping"}
+          <h1 className="text-4xl md:text-5xl font-black text-white mb-2 game-text">
+            {isAgentSpeaking ? "The Tale Unfolds..." : isAgentListening ? "Your Move, Adventurer" : "Realm of Eldoria"}
+          </h1>
+          <p className="text-[#9BDB4D] text-xl font-semibold">
+            {isAgentSpeaking ? "Dungeon Master Aldric narrates" : isAgentListening ? "Speak your action" : "Voice D&D Adventure"}
           </p>
         </motion.div>
 
-        {/* Status Indicator */}
+        {/* Status Indicator - Game style */}
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ delay: 0.3, type: "spring" }}
-          className="mb-8 flex items-center gap-3"
+          className="mb-8 flex items-center gap-3 bg-[#1a3d1a] px-5 py-2.5 rounded-lg border border-[#9BDB4D]/50"
+          role="status"
+          aria-label={statusText}
         >
           <div className={cn(
-            "w-3 h-3 rounded-full transition-all",
-            isAgentSpeaking ? "bg-[#8B5CF6] animate-pulse scale-125" : 
-            isAgentListening ? "bg-[#00D632] animate-pulse" : 
-            "bg-gray-400"
-          )}></div>
-          <span className="text-sm font-medium text-gray-600">
-            {isAgentSpeaking ? "Zara Speaking" : isAgentListening ? "You're Speaking" : "Ready"}
+            "w-4 h-4 rounded-full transition-all",
+            isAgentSpeaking ? "bg-[#9BDB4D] animate-pulse scale-125" : 
+            isAgentListening ? "bg-green-400 animate-pulse" : 
+            "bg-gray-500"
+          )} aria-hidden="true"></div>
+          <span className="text-base font-semibold text-white">
+            {isAgentSpeaking ? "Aldric Speaks" : isAgentListening ? "Your Turn" : "Ready"}
           </span>
         </motion.div>
 
-        {/* Feature Cards */}
+        {/* Action Cards - Dark fantasy */}
         <motion.div
           initial={{ y: 30, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.4 }}
-          className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 w-full max-w-4xl"
+          className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10 w-full max-w-4xl"
+          role="list"
+          aria-label="Game actions"
         >
-          <div className="bg-white/80 backdrop-blur-sm p-8 rounded-2xl shadow-lg border-2 border-[#8B5CF6]/10">
-            <Package className="w-10 h-10 text-[#8B5CF6] mb-3" />
-            <h3 className="text-lg font-bold text-[#1F1F1F] mb-2">Add to Cart</h3>
-            <p className="text-sm text-gray-600">
-              Just say what you want and I'll add it to your cart
+          <article 
+            className="bg-[#1a1a1a] p-5 rounded-xl border-2 border-[#107C10]/40"
+            role="listitem"
+            tabIndex={0}
+          >
+            <Sword className="w-8 h-8 text-[#9BDB4D] mb-2" aria-hidden="true" />
+            <h2 className="text-lg font-bold text-white mb-1">Combat</h2>
+            <p className="text-sm text-[#a0a0a0]">
+              "I attack" or "Roll strength"
             </p>
-          </div>
+          </article>
 
-          <div className="bg-white/80 backdrop-blur-sm p-8 rounded-2xl shadow-lg border-2 border-[#8B5CF6]/10">
-            <Sparkles className="w-10 h-10 text-[#8B5CF6] mb-3" />
-            <h3 className="text-lg font-bold text-[#1F1F1F] mb-2">Smart Recipes</h3>
-            <p className="text-sm text-gray-600">
-              Ask for recipe ingredients and get them all added
+          <article 
+            className="bg-[#1a1a1a] p-5 rounded-xl border-2 border-[#107C10]/40"
+            role="listitem"
+            tabIndex={0}
+          >
+            <Backpack className="w-8 h-8 text-[#9BDB4D] mb-2" aria-hidden="true" />
+            <h2 className="text-lg font-bold text-white mb-1">Inventory</h2>
+            <p className="text-sm text-[#a0a0a0]">
+              "Check inventory" or "Use potion"
             </p>
-          </div>
+          </article>
 
-          <div className="bg-white/80 backdrop-blur-sm p-8 rounded-2xl shadow-lg border-2 border-[#8B5CF6]/10">
-            <Clock className="w-10 h-10 text-[#8B5CF6] mb-3" />
-            <h3 className="text-lg font-bold text-[#1F1F1F] mb-2">Quick Checkout</h3>
-            <p className="text-sm text-gray-600">
-              Place your order with just a voice command
+          <article 
+            className="bg-[#1a1a1a] p-5 rounded-xl border-2 border-[#107C10]/40"
+            role="listitem"
+            tabIndex={0}
+          >
+            <Heart className="w-8 h-8 text-[#9BDB4D] mb-2" aria-hidden="true" />
+            <h2 className="text-lg font-bold text-white mb-1">Status</h2>
+            <p className="text-sm text-[#a0a0a0]">
+              "What's my health?" or "Game summary"
             </p>
-          </div>
+          </article>
         </motion.div>
 
-        {/* Microphone Control */}
+        {/* Large Microphone Control - Epic style */}
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
@@ -125,35 +165,38 @@ export const SessionView = ({
         >
           <button
             onClick={() => toggleMic()}
+            aria-label={micEnabled ? "Microphone is on. Click to turn off." : "Microphone is off. Click to turn on."}
+            aria-pressed={micEnabled}
             className={cn(
-              "relative group transition-all duration-300",
+              "relative group transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-[#107C10]/50",
               micEnabled 
-                ? "bg-gradient-to-r from-[#8B5CF6] to-[#7C3AED] hover:shadow-[0_20px_50px_rgba(139,92,246,0.5)]" 
-                : "bg-gray-400 hover:bg-gray-500"
+                ? "bg-[#107C10] hover:bg-[#9BDB4D]" 
+                : "bg-gray-600 hover:bg-gray-500"
             )}
             style={{
-              width: '80px',
-              height: '80px',
-              borderRadius: '50%',
+              width: '100px',
+              height: '100px',
+              borderRadius: '12px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              boxShadow: micEnabled ? '0 10px 40px rgba(139, 92, 246, 0.4)' : '0 10px 30px rgba(0, 0, 0, 0.2)'
+              boxShadow: micEnabled ? '0 10px 40px rgba(16, 124, 16, 0.5)' : '0 10px 30px rgba(0, 0, 0, 0.3)'
             }}
           >
             {micEnabled ? (
-              <Mic className="w-10 h-10 text-white" strokeWidth={2.5} />
+              <Mic className="w-12 h-12 text-white" strokeWidth={2.5} aria-hidden="true" />
             ) : (
-              <MicOff className="w-10 h-10 text-white" strokeWidth={2.5} />
+              <MicOff className="w-12 h-12 text-white" strokeWidth={2.5} aria-hidden="true" />
             )}
             
             {/* Pulse effect when listening */}
             {micEnabled && isAgentListening && (
               <motion.div
-                className="absolute inset-0 rounded-full border-4 border-[#00D632]"
+                className="absolute inset-0 rounded-xl border-4 border-[#9BDB4D]"
                 initial={{ scale: 1, opacity: 0.8 }}
-                animate={{ scale: 1.5, opacity: 0 }}
+                animate={{ scale: 1.3, opacity: 0 }}
                 transition={{ duration: 1.5, repeat: Infinity }}
+                aria-hidden="true"
               />
             )}
           </button>
@@ -163,22 +206,24 @@ export const SessionView = ({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.6 }}
-          className="mt-6 text-gray-600 text-center max-w-md"
+          className="mt-5 text-[#a0a0a0] text-lg text-center max-w-md font-medium"
         >
           {micEnabled 
-            ? "Microphone active - Tell Zara what you'd like to order" 
-            : "Click the microphone to start shopping"}
+            ? "⚔️ Microphone ON - Speak to Aldric" 
+            : "Click to speak with the Dungeon Master"}
         </motion.p>
 
-        {/* Pro Tip */}
+        {/* Voice commands help - Fantasy style */}
         <motion.div
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.7 }}
-          className="mt-12 bg-white/80 backdrop-blur-sm p-6 rounded-xl max-w-2xl border-2 border-[#8B5CF6]/20 shadow-lg"
+          className="mt-8 bg-[#1a1a1a] p-5 rounded-xl max-w-2xl border-2 border-[#107C10]/40"
+          role="region"
+          aria-label="Voice command examples"
         >
-          <p className="text-sm text-gray-700 leading-relaxed text-center">
-            <span className="font-bold text-[#8B5CF6]">💡 Try saying:</span> "Add milk to my cart" • "I need ingredients for pasta" • "What's in my cart?" • "Remove bread from cart" • "Place my order"
+          <p className="text-base text-white leading-relaxed text-center">
+            <span className="font-bold text-[#9BDB4D]">⚔️ Commands:</span> "My name is..." • "I roll for perception" • "Attack the goblin" • "Check my inventory" • "What's my health?"
           </p>
         </motion.div>
       </div>
