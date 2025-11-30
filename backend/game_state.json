@@ -35,6 +35,11 @@
         "type": "tool",
         "description": "Lights the darkness",
         "quantity": 3
+      },
+      {
+        "name": "Silver Amulet",
+        "type": "Trinket",
+        "description": "A tarnished silver amulet said to ward off evil spirits."
       }
     ]
   },

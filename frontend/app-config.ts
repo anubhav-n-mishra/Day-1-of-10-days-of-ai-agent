@@ -20,20 +20,20 @@ export interface AppConfig {
 }
 
 export const APP_CONFIG_DEFAULTS: AppConfig = {
-  companyName: 'Realm of Eldoria',
-  pageTitle: 'Realm of Eldoria - Voice D&D Adventure',
-  pageDescription: 'Embark on an epic voice-guided D&D adventure with Dungeon Master Aldric. Roll dice, battle monsters, and save the realm from the Shadow Dragon Malachar!',
+  companyName: 'ShopVoice',
+  pageTitle: 'ShopVoice - Voice-Powered Shopping Assistant',
+  pageDescription: 'Shop smarter with Aria, your AI voice shopping assistant. Browse products, compare prices, and place orders hands-free using just your voice.',
 
   supportsChatInput: true,
   supportsVideoInput: false,
   supportsScreenShare: false,
   isPreConnectBufferEnabled: true,
 
-  logo: '/eldoria-logo.svg',
-  accent: '#107C10',
-  logoDark: '/eldoria-logo.svg',
-  accentDark: '#9BDB4D',
-  startButtonText: 'Begin Your Quest',
+  logo: '/shopvoice-logo.svg',
+  accent: '#FF9900',
+  logoDark: '/shopvoice-logo.svg',
+  accentDark: '#FEBD69',
+  startButtonText: 'Start Shopping',
 
   // for LiveKit Cloud Sandbox
   sandboxId: undefined,
