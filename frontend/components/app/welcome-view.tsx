@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Button } from '@/components/livekit/button';
 
 function WelcomeImage() {
@@ -20,7 +21,7 @@ function WelcomeImage() {
 
 interface WelcomeViewProps {
   startButtonText: string;
-  onStartCall: () => void;
+  onStartCall: (playerName: string) => void;
 }
 
 export const WelcomeView = ({
@@ -28,32 +29,72 @@ export const WelcomeView = ({
   onStartCall,
   ref,
 }: React.ComponentProps<'div'> & WelcomeViewProps) => {
+  const [playerName, setPlayerName] = useState('');
+
+  const handleStart = () => {
+    const name = playerName.trim() || 'Contestant';
+    onStartCall(name);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleStart();
+    }
+  };
+
   return (
     <div ref={ref}>
       <section className="bg-background flex flex-col items-center justify-center text-center">
         <WelcomeImage />
 
+        <h1 className="text-foreground text-2xl font-bold mb-2">
+          🎭 Improv Battle
+        </h1>
+
         <p className="text-foreground max-w-prose pt-1 leading-6 font-medium">
-          Chat live with your voice AI agent
+          Welcome to the voice-first improv game show!
         </p>
 
-        <Button variant="primary" size="lg" onClick={onStartCall} className="mt-6 w-64 font-mono">
+        <p className="text-muted-foreground text-sm mt-2 max-w-prose">
+          Enter your name and get ready to improvise through hilarious scenarios.
+        </p>
+
+        <div className="mt-6 w-64">
+          <input
+            type="text"
+            placeholder="Enter your name"
+            value={playerName}
+            onChange={(e) => setPlayerName(e.target.value)}
+            onKeyDown={handleKeyDown}
+            className="w-full px-4 py-2 rounded-md border border-border bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary mb-4"
+          />
+        </div>
+
+        <Button variant="primary" size="lg" onClick={handleStart} className="w-64 font-mono">
           {startButtonText}
         </Button>
       </section>
 
       <div className="fixed bottom-5 left-0 flex w-full items-center justify-center">
         <p className="text-muted-foreground max-w-prose pt-1 text-xs leading-5 font-normal text-pretty md:text-sm">
-          Need help getting set up? Check out the{' '}
+          Powered by{' '}
           <a
             target="_blank"
             rel="noopener noreferrer"
-            href="https://docs.livekit.io/agents/start/voice-ai/"
+            href="https://murf.ai/"
             className="underline"
           >
-            Voice AI quickstart
+            Murf AI
+          </a>{' '}
+          and{' '}
+          <a
+            target="_blank"
+            rel="noopener noreferrer"
+            href="https://livekit.io/"
+            className="underline"
+          >
+            LiveKit
           </a>
-          .
         </p>
       </div>
     </div>
